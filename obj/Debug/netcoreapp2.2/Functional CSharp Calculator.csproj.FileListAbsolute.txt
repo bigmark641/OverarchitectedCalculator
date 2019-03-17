@@ -1,0 +1,11 @@
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\Functional CSharp Calculator.deps.json
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\Functional CSharp Calculator.runtimeconfig.json
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\Functional CSharp Calculator.runtimeconfig.dev.json
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\Functional CSharp Calculator.dll
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\Functional CSharp Calculator.pdb
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.csprojAssemblyReference.cache
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.csproj.CoreCompileInputs.cache
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.AssemblyInfoInputs.cache
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.AssemblyInfo.cs
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.dll
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.pdb
