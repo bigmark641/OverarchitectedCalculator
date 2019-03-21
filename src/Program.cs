@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Calculator.Implementations;
 using TextCalculator;
 
 namespace Calculator
 {
     class Program
     {
-        static readonly ITextCalculator TextCalculator = CreateTextCalculator();
+        static readonly ITextCalculator TextCalculator = GetTextCalculator();
 
         static void Main(string[] args)
         {
@@ -23,13 +27,35 @@ namespace Calculator
             SubmitUserInputAndPrintResultWithDelay("2");
         }
 
-        private static ITextCalculator CreateTextCalculator()
+        private static ITextCalculator GetTextCalculator()
         {
-            //Get ITextCalculator with injected dependencies
-            return new TextCalculator.Implementations.TextCalculator(getCalculator(), getOperationFactory());
-            ICalculator getCalculator() => new Calculator.Implementations.Calculator(getCalculatorStateFactory());
-            ICalculatorStateFactory getCalculatorStateFactory() => new Calculator.Implementations.CalculatorStateFactory();
-            IOperationFactory getOperationFactory() => new OperationFactory();
+            //Get concrete TextCalculator with injected dependencies
+            return new TextCalculator.Implementations.TextCalculator(calculator(), operationFactory());
+
+            //Get concrete calculator
+            ICalculator calculator() => new Calculator.Implementations.Calculator(calculatorStateFactory());
+            ICalculatorStateFactory calculatorStateFactory() => new Calculator.Implementations.CalculatorStateFactory();
+
+            //Get concrete operation factory
+            IOperationFactory operationFactory() => new DelegateOperationFactory(operationForOperatorSymbol);
+            IOperation operationForOperatorSymbol(string operatorSymbol) => (IOperation)defaultConstructorForOperatorSymbol(operatorSymbol).Invoke(new object[]{});  
+            ConstructorInfo defaultConstructorForOperatorSymbol(string operatorSymbol) => defaultConstructorsByOperatorSymbol(operatorSymbol).Single();          
+            IEnumerable<ConstructorInfo> defaultConstructorsByOperatorSymbol(string operatorSymbol) => typesByOperatorSymbol(operatorSymbol).Select(defaultConstructorForType);
+            
+            //Get default constructor for type
+            ConstructorInfo defaultConstructorForType(Type type) => type.GetConstructor(Type.EmptyTypes);
+
+            //Get types by operator symbol
+            IEnumerable<Type> typesByOperatorSymbol(string operatorSymbol) => typesAssignableToIOperation().Where(x => typeHasOperatorSymbol(x, operatorSymbol));
+            IEnumerable<Type> typesAssignableToIOperation() => types().Where(x => typeof(IOperation).IsAssignableFrom(x));
+            IEnumerable<Type> types() => assemblies().SelectMany(x => x.GetTypes());
+            Assembly[] assemblies() => AppDomain.CurrentDomain.GetAssemblies();  
+
+            //Type has operator symbol 
+            bool typeHasOperatorSymbol(Type type, string operatorSymbol) => operatorAttributeForType(type) != null
+                ? operatorAttributeForType(type).Symbol.Equals(operatorSymbol)
+                : false;
+            OperatorAttribute operatorAttributeForType(Type type) => (OperatorAttribute)Attribute.GetCustomAttribute(type, typeof(OperatorAttribute));
         }
 
         private static void SubmitUserInputAndPrintResultWithDelay(string input)

@@ -21,7 +21,7 @@ namespace TextCalculator.Implementations
                 ? Calculator.SubmitValueInputAndGetResult(numberInput())
                 : Calculator.SubmitOperationInputAndGetResult(operationInput());
             decimal numberInput() => GetNumber(input);
-            IOperation operationInput() => OperationFactory.GetOperation(input);
+            IOperation operationInput() => OperationFactory.GetOperationByOperatorSymbol(input);
         }
 
         private bool IsNumber(string stringToTest)
