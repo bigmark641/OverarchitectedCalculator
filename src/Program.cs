@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Calculator.Implementations;
 using TextCalculator;
 
 namespace Calculator
@@ -37,7 +36,7 @@ namespace Calculator
             ICalculatorStateFactory calculatorStateFactory() => new Calculator.Implementations.CalculatorStateFactory();
 
             //Get concrete operation factory
-            IOperationFactory operationFactory() => new DelegateOperationFactory(operationForOperatorSymbol);
+            IOperationFactory operationFactory() => new Calculator.Implementations.DelegateOperationFactory(operationForOperatorSymbol);
             IOperation operationForOperatorSymbol(string operatorSymbol) => (IOperation)defaultConstructorForOperatorSymbol(operatorSymbol).Invoke(new object[]{});  
             ConstructorInfo defaultConstructorForOperatorSymbol(string operatorSymbol) => defaultConstructorsByOperatorSymbol(operatorSymbol).Single();          
             IEnumerable<ConstructorInfo> defaultConstructorsByOperatorSymbol(string operatorSymbol) => typesByOperatorSymbol(operatorSymbol).Select(defaultConstructorForType);
@@ -55,7 +54,7 @@ namespace Calculator
             bool typeHasOperatorSymbol(Type type, string operatorSymbol) => operatorAttributeForType(type) != null
                 ? operatorAttributeForType(type).Symbol.Equals(operatorSymbol)
                 : false;
-            OperatorAttribute operatorAttributeForType(Type type) => (OperatorAttribute)Attribute.GetCustomAttribute(type, typeof(OperatorAttribute));
+            Calculator.Implementations.OperatorAttribute operatorAttributeForType(Type type) => (Calculator.Implementations.OperatorAttribute)Attribute.GetCustomAttribute(type, typeof(Calculator.Implementations.OperatorAttribute));
         }
 
         private static void SubmitUserInputAndPrintResultWithDelay(string input)
