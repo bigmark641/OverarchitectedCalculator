@@ -1,6 +1,6 @@
 using System;
 
-namespace Calculator.Implementations
+namespace OperationPlugins
 {
     class OperatorAttribute : Attribute
     {

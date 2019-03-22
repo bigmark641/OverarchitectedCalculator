@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Calculator;
+using CalculatorEngine;
 
-namespace Calculator.Implementations
+namespace CalculatorEngine.Implementations
 {
     class Calculator : ICalculator
     {
@@ -15,7 +15,9 @@ namespace Calculator.Implementations
 
         public Calculator(ICalculatorStateFactory calculatorStateFactory)
         {
+            //Set injected dependency
             CalculatorStateFactory = calculatorStateFactory;
+
             //Initialize state
             CurrentState = CalculatorStateFactory.GetCalculatorState(initialValues(), initialOperation());
             IImmutableList<decimal> initialValues() => ImmutableList<decimal>.Empty;
@@ -26,6 +28,7 @@ namespace Calculator.Implementations
         {
             //Update state
             CurrentState = GetStateAfterOperationEvaluation(currentValuesWithNewInput(), currentOperation());
+            
             //Return latest value
             return GetLatestValue();
             IImmutableList<decimal> currentValuesWithNewInput() => CurrentState.Values.Add(valueInput);

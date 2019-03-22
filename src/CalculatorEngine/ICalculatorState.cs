@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Calculator
+namespace CalculatorEngine
 {
     interface ICalculatorState
     {

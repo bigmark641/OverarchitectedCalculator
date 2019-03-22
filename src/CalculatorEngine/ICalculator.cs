@@ -1,7 +1,6 @@
 using System;
-using Calculator;
 
-namespace Calculator
+namespace CalculatorEngine
 {
     interface ICalculator
     {

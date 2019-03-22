@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using CalculatorEngine;
 
-namespace Calculator.Implementations.Operations
+namespace OperationPlugins
 {
-    [Operator("^2")]
-    class SquareOperation : Operation
+    [Operator("-")]
+    class SubtractionOperation : Operation
     {
         public override int GetNumberOfOperands()
-            => 1;
+            => 2;
 
         protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
-            => operands.Single() * operands.Single();
+            => operands[0] - operands[1];
     }
 }

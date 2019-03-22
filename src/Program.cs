@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CalculatorEngine;
+using CalculatorEngine.Implementations;
 using TextCalculator;
+using TextCalculator.Implementations;
+using OperationPlugins;
 
 namespace Calculator
 {
@@ -32,11 +36,11 @@ namespace Calculator
             return new TextCalculator.Implementations.TextCalculator(calculator(), operationFactory());
 
             //Get concrete calculator
-            ICalculator calculator() => new Calculator.Implementations.Calculator(calculatorStateFactory());
-            ICalculatorStateFactory calculatorStateFactory() => new Calculator.Implementations.CalculatorStateFactory();
+            ICalculator calculator() => new CalculatorEngine.Implementations.Calculator(calculatorStateFactory());
+            ICalculatorStateFactory calculatorStateFactory() => new CalculatorStateFactory();
 
             //Get concrete operation factory
-            IOperationFactory operationFactory() => new Calculator.Implementations.DelegateOperationFactory(operationForOperatorSymbol);
+            IOperationFactory operationFactory() => new DelegateOperationFactory(operationForOperatorSymbol);
             IOperation operationForOperatorSymbol(string operatorSymbol) => (IOperation)defaultConstructorForOperatorSymbol(operatorSymbol).Invoke(new object[]{});  
             ConstructorInfo defaultConstructorForOperatorSymbol(string operatorSymbol) => defaultConstructorsByOperatorSymbol(operatorSymbol).Single();          
             IEnumerable<ConstructorInfo> defaultConstructorsByOperatorSymbol(string operatorSymbol) => typesByOperatorSymbol(operatorSymbol).Select(defaultConstructorForType);
@@ -54,7 +58,7 @@ namespace Calculator
             bool typeHasOperatorSymbol(Type type, string operatorSymbol) => operatorAttributeForType(type) != null
                 ? operatorAttributeForType(type).Symbol.Equals(operatorSymbol)
                 : false;
-            Calculator.Implementations.OperatorAttribute operatorAttributeForType(Type type) => (Calculator.Implementations.OperatorAttribute)Attribute.GetCustomAttribute(type, typeof(Calculator.Implementations.OperatorAttribute));
+            OperatorAttribute operatorAttributeForType(Type type) => (OperatorAttribute)Attribute.GetCustomAttribute(type, typeof(OperatorAttribute));
         }
 
         private static void SubmitUserInputAndPrintResultWithDelay(string input)

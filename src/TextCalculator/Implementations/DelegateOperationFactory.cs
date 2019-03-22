@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TextCalculator;
-using Calculator;
+using CalculatorEngine;
 
-namespace Calculator.Implementations
+namespace TextCalculator.Implementations
 {
     class DelegateOperationFactory : IOperationFactory
     {
@@ -15,10 +15,5 @@ namespace Calculator.Implementations
         {
             GetOperationByOperatorSymbol = getOperationByOperatorSymbol;
         }
-        
-        // (string operatorSymbol)
-        //     => GetObjectFromDefaultConstructor<IOperation>(x => TypeHasOperatorSymbol(x, operatorSymbol));
-
-        
     }
 }

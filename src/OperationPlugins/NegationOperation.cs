@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CalculatorEngine;
 
-namespace Calculator.Implementations.Operations
+namespace OperationPlugins
 {
-    [Operator("-")]
-    class SubtractionOperation : Operation
+    [Operator("neg")]
+    class NegationOperation : Operation
     {
         public override int GetNumberOfOperands()
-            => 2;
+            => 1;
 
         protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
-            => operands[0] - operands[1];
+            => -operands.Single();
     }
 }

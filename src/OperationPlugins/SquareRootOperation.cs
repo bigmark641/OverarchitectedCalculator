@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CalculatorEngine;
 
-namespace Calculator.Implementations.Operations
+namespace OperationPlugins
 {
-    [Operator("neg")]
-    class NegationOperation : Operation
+    [Operator("sqrt")]
+    class SquareRootOperation : Operation
     {
         public override int GetNumberOfOperands()
             => 1;
 
         protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
-            => -operands.Single();
+            => (decimal) System.Math.Sqrt((double) operands.Single());
     }
 }

@@ -1,7 +1,7 @@
 using System;
-using Calculator;
+using CalculatorEngine;
 
-namespace Calculator
+namespace TextCalculator
 {
     interface IOperationFactory 
     {
