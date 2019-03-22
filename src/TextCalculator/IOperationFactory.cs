@@ -5,6 +5,6 @@ namespace TextCalculator
 {
     interface IOperationFactory 
     {
-        Func<string, IOperation> GetOperationByOperatorSymbol { get; }
+        IOperation GetOperationByOperatorSymbol(string operatorSymbol);
     }
 }

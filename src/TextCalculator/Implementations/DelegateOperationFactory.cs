@@ -9,11 +9,12 @@ namespace TextCalculator.Implementations
 {
     class DelegateOperationFactory : IOperationFactory
     {
-        public Func<string, IOperation> GetOperationByOperatorSymbol { get; }
+        private Func<string, IOperation> GetOperationByOperatorSymbolFunc { get; }
 
         public DelegateOperationFactory(Func<string, IOperation> getOperationByOperatorSymbol)
-        {
-            GetOperationByOperatorSymbol = getOperationByOperatorSymbol;
-        }
+            => GetOperationByOperatorSymbolFunc = getOperationByOperatorSymbol;
+
+        public IOperation GetOperationByOperatorSymbol(string operatorSymbol)
+            => GetOperationByOperatorSymbolFunc(operatorSymbol);
     }
 }
