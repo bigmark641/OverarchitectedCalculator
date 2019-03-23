@@ -2,7 +2,7 @@ using System;
 
 namespace TextCalculator
 {
-    interface ITextCalculator
+    public interface ITextCalculator
     {
         string SubmitInputAndGetResult(string input);
     }

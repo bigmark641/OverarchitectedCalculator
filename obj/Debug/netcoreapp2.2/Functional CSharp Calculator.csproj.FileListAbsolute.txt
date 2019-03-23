@@ -9,3 +9,6 @@ C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSh
 C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.AssemblyInfo.cs
 C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.dll
 C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\obj\Debug\netcoreapp2.2\Functional CSharp Calculator.pdb
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\xunit.runner.visualstudio.dotnetcore.testadapter.dll
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\xunit.runner.reporters.netcoreapp10.dll
+C:\Users\mark6\OneDrive\Documents\Technology\Programming\Projects\Functional CSharp Calculator\bin\Debug\netcoreapp2.2\xunit.runner.utility.netcoreapp10.dll

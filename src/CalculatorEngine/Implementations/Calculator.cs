@@ -18,7 +18,7 @@ namespace CalculatorEngine.Implementations
             //Set injected dependency
             CalculatorStateFactory = calculatorStateFactory;
 
-            //Initialize state
+            //Initialize mutable state
             CurrentState = CalculatorStateFactory.GetCalculatorState(initialValues(), initialOperation());
             IImmutableList<decimal> initialValues() => ImmutableList<decimal>.Empty;
             IOperation initialOperation() => null;
@@ -26,7 +26,7 @@ namespace CalculatorEngine.Implementations
 
         public decimal SubmitValueInputAndGetResult(decimal valueInput)
         {
-            //Update state
+            //Update mutable state
             CurrentState = GetStateAfterOperationEvaluation(currentValuesWithNewInput(), currentOperation());
             
             //Return latest value
@@ -40,8 +40,9 @@ namespace CalculatorEngine.Implementations
 
         public decimal SubmitOperationInputAndGetResult(IOperation operationInput)
         {
-            //Update state
+            //Update mutable state
             CurrentState = GetStateAfterOperationEvaluation(currentValues(), newlyInputtedOperation());
+            
             //Return latest value
             return GetLatestValue();
             IImmutableList<decimal> currentValues() => CurrentState.Values;
@@ -51,13 +52,21 @@ namespace CalculatorEngine.Implementations
         private ICalculatorState GetStateAfterOperationEvaluation(IImmutableList<decimal> values, IOperation operation)
         {
             return CalculatorStateFactory.GetCalculatorState(valuesAfterOperationEvaluation(), operationAfterOperationEvaluation());
+            
+            //Get values after evaluation
             IImmutableList<decimal> valuesAfterOperationEvaluation() => canExecuteOperation()
                 ? ImmutableList<decimal>.Empty.Add(resultForOperation())
-                : values;
+                : values.Any()
+                    ? values
+                    : throw new ArgumentException();
             bool canExecuteOperation() => hasOperation() && operation.GetNumberOfOperands() == values.Count();
             bool hasOperation() => operation != null;
+
+            //Get result of operation
             decimal resultForOperation() => operation.GetResultForOperands(valueList());
             IList<decimal> valueList() => values.ToList();
+
+            //Get operation after evaluation
             IOperation operationAfterOperationEvaluation() => canExecuteOperation()
                 ? null
                 : operation;

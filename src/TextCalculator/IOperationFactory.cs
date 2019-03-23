@@ -3,7 +3,7 @@ using CalculatorEngine;
 
 namespace TextCalculator
 {
-    interface IOperationFactory 
+    public interface IOperationFactory 
     {
         IOperation GetOperationByOperatorSymbol(string operatorSymbol);
     }

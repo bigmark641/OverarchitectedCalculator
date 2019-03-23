@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace CalculatorEngine
 {
-    interface ICalculatorStateFactory
+    public interface ICalculatorStateFactory
     {
         ICalculatorState GetCalculatorState(IImmutableList<decimal> values, IOperation operation);
     }

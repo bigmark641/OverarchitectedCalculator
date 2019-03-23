@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CalculatorEngine
 {
-    interface IOperation
+    public interface IOperation
     {
         int GetNumberOfOperands();
         decimal GetResultForOperands(IList<decimal> operands);

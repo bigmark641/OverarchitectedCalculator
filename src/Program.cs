@@ -17,7 +17,7 @@ namespace Calculator
         static void Main(string[] args)
         {
             //Simulate user input
-            SubmitUserInputAndPrintResultWithDelay("5");
+            SubmitUserInputAndPrintResultWithDelay("PI");
             SubmitUserInputAndPrintResultWithDelay("+");
             SubmitUserInputAndPrintResultWithDelay("2");
             SubmitUserInputAndPrintResultWithDelay("-");
