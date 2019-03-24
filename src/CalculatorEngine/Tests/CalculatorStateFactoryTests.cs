@@ -40,7 +40,7 @@ namespace CalculatorEngine.Tests
 
             //Constructed calculator state operation
             IOperation constructedCalculatorStateOperation()
-                => constructedCalculatorState().Operation;
+                => constructedCalculatorState().ActiveOperation;
             ICalculatorState constructedCalculatorState()
                 => GetCalculatorStateFactory().GetCalculatorState(null, operationForConstructor);
         }

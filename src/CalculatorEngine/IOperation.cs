@@ -6,6 +6,6 @@ namespace CalculatorEngine
     public interface IOperation
     {
         int GetNumberOfOperands();
-        decimal GetResultForOperands(IList<decimal> operands);
+        decimal GetResultForOperands(IEnumerable<decimal> operands);
     }
 }

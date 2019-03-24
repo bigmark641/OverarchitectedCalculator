@@ -6,5 +6,6 @@ namespace CalculatorEngine
     {
         decimal SubmitValueInputAndGetResult(decimal value);
         decimal SubmitOperationInputAndGetResult(IOperation operation);
+        decimal SubmitEqualsRequestAndGetResult();
     }
 }

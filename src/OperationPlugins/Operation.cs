@@ -9,9 +9,9 @@ namespace OperationPlugins
     {
         public abstract int GetNumberOfOperands();
 
-        public decimal GetResultForOperands(IList<decimal> operands)
+        public decimal GetResultForOperands(IEnumerable<decimal> operands)
             => operands.Count() == GetNumberOfOperands()
-                ? GetResultForValidatedOperands(operands)
+                ? GetResultForValidatedOperands(operands.ToList())
                 : throw new ArgumentException();
 
         protected abstract decimal GetResultForValidatedOperands(IList<decimal> operands);

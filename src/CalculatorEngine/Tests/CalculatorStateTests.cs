@@ -38,7 +38,7 @@ namespace CalculatorEngine.Tests
             
             //Constructed calculator state operation
             IOperation constructedCalculatorStateOperation()
-                => constructedCalculatorState().Operation;
+                => constructedCalculatorState().ActiveOperation;
             CalculatorState constructedCalculatorState() 
                 => new CalculatorState(null, operationForConstructor);
         }

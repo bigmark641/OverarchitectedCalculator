@@ -7,12 +7,12 @@ namespace CalculatorEngine.Implementations
     class CalculatorState : ICalculatorState
     {
         public IImmutableList<decimal> Values {get;}
-        public IOperation Operation {get;}
+        public IOperation ActiveOperation {get;}
 
         public CalculatorState(IImmutableList<decimal> values, IOperation operation)
         {
             Values = values;
-            Operation = operation;
+            ActiveOperation = operation;
         }
     }
 }

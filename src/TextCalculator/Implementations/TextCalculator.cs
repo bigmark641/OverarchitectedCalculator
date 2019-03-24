@@ -17,9 +17,10 @@ namespace TextCalculator.Implementations
         public string SubmitInputAndGetResult(string input)
         {
             return decimalResult().ToString();
-            decimal decimalResult() => IsNumber(input)
-                ? Calculator.SubmitValueInputAndGetResult(numberInput())
-                : Calculator.SubmitOperationInputAndGetResult(operationInput());
+            decimal decimalResult() => 
+                IsNumber(input) ? Calculator.SubmitValueInputAndGetResult(numberInput())
+                : input.Equals("=") ? Calculator.SubmitEqualsRequestAndGetResult()
+                    : Calculator.SubmitOperationInputAndGetResult(operationInput());
             decimal numberInput() => GetNumber(input);
             IOperation operationInput() => OperationFactory.GetOperationByOperatorSymbol(input);
         }

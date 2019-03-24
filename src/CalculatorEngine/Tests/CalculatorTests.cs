@@ -25,7 +25,7 @@ namespace CalculatorEngine.Tests
                 {
                     var calculatorStateMock = new Mock<ICalculatorState>();
                     calculatorStateMock.Setup(x => x.Values).Returns(values);
-                    calculatorStateMock.Setup(x => x.Operation).Returns(operation);
+                    calculatorStateMock.Setup(x => x.ActiveOperation).Returns(operation);
                     return calculatorStateMock.Object;
                 }));
         }
@@ -47,6 +47,11 @@ namespace CalculatorEngine.Tests
             //Result for mock
             decimal resultForMock()
                 => 123;
+        }
+
+        private Implementations.Calculator GetCalculator()
+        {
+            return new Implementations.Calculator(CalculatorStateFactoryMock.Object);
         }
 
         private IOperation GetOperation(int numberOfOperands, decimal operationResult = 0)
@@ -86,11 +91,6 @@ namespace CalculatorEngine.Tests
             //Result for mock
             decimal valueInput()
                 => 123;            
-        }
-
-        private Implementations.Calculator GetCalculator()
-        {
-            return new Implementations.Calculator(CalculatorStateFactoryMock.Object);
         }
     }
 }

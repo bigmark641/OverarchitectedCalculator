@@ -6,6 +6,6 @@ namespace CalculatorEngine
     public interface ICalculatorState
     {
         IImmutableList<decimal> Values {get;}
-        IOperation Operation {get;}
+        IOperation ActiveOperation {get;}
     }
 }

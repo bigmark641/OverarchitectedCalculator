@@ -28,6 +28,7 @@ namespace Calculator
             SubmitUserInputAndPrintResultWithDelay("CompoundInterest");
             SubmitUserInputAndPrintResultWithDelay(".1");
             SubmitUserInputAndPrintResultWithDelay("2");
+            SubmitUserInputAndPrintResultWithDelay("=");
         }
 
         private static ITextCalculator GetTextCalculator()

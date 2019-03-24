@@ -26,50 +26,87 @@ namespace CalculatorEngine.Implementations
 
         public decimal SubmitValueInputAndGetResult(decimal valueInput)
         {
-            //Update mutable state
-            CurrentState = GetStateAfterOperationEvaluation(currentValuesWithNewInput(), currentOperation());
+            //Update mutable state for new value
+            CurrentState = IsValueInputValidForCurrentState()
+                ? CalculatorStateFactory.GetCalculatorState(currentValuesWithNewInput(), currentOperation())
+                : throw new ArgumentException();
             
             //Return latest value
             return GetLatestValue();
             IImmutableList<decimal> currentValuesWithNewInput() => CurrentState.Values.Add(valueInput);
-            IOperation currentOperation() => CurrentState.Operation;
+            IOperation currentOperation() => CurrentState.ActiveOperation;
         }
+
+        private bool IsValueInputValidForCurrentState()
+            => !CurrentState.Values.Any() || CurrentState.ActiveOperation != null;
+
+        public decimal SubmitOperationInputAndGetResult(IOperation newOperation)
+        {
+            //Update mutable state for new operation
+            CurrentState = IsOperationInputValidForCurrentState(newOperation)
+                ?   GetStateAfterNewOperationInput(newOperation)
+                : throw new ArgumentException();
+
+            //Return latest value
+            return GetLatestValue();           
+        }
+
+        private bool IsOperationInputValidForCurrentState(IOperation newOperation)
+            =>  newOperation.GetNumberOfOperands() == 0
+                    ? !CurrentState.Values.Any() || CurrentState.ActiveOperation != null
+                : newOperation.GetNumberOfOperands() == 1
+                    ? CurrentState.Values.Any()
+                : CurrentState.ActiveOperation == null
+                    ? CurrentState.Values.Count() == 1
+                    : CurrentState.Values.Count() == CurrentState.ActiveOperation.GetNumberOfOperands();
+
+        private ICalculatorState GetStateAfterNewOperationInput(IOperation newOperation)
+            => CalculatorStateFactory.GetCalculatorState(GetValuesAfterNewOperationInput(newOperation), GetOperationAfterNewOperationInput(newOperation));
+
+        private IImmutableList<decimal> GetValuesAfterNewOperationInput(IOperation newOperation)
+            =>  newOperation.GetNumberOfOperands() == 0
+                    ? GetCurrentValuesPlusNewValue(newOperation.GetResultForOperands(ImmutableList<decimal>.Empty))
+                : newOperation.GetNumberOfOperands() == 1
+                    ? GetCurrentValuesWithLastReplaced(newOperation.GetResultForOperands(GetListWithSingleValue(CurrentState.Values.Last())))
+                : CurrentState.ActiveOperation == null
+                    ? CurrentState.Values
+                    : GetListWithSingleValue(CurrentState.ActiveOperation.GetResultForOperands(CurrentState.Values));
+
+        private IOperation GetOperationAfterNewOperationInput(IOperation newOperation)
+            =>  newOperation.GetNumberOfOperands() == 0
+                    ? CurrentState.ActiveOperation
+                : newOperation.GetNumberOfOperands() == 1
+                    ? CurrentState.ActiveOperation
+                : CurrentState.ActiveOperation == null
+                    ? newOperation
+                    : newOperation;
+            
+        IImmutableList<decimal> GetCurrentValuesWithLastReplaced(decimal newValue)
+            => CurrentState.Values.SetItem(CurrentState.Values.Count()-1, newValue);
+        
+        IImmutableList<decimal> GetCurrentValuesPlusNewValue(decimal newValue)
+            => CurrentState.Values.Add(newValue);
+        
+        IImmutableList<decimal> GetListWithSingleValue(decimal value)
+            => ImmutableList<decimal>.Empty.Add(value);
 
         private decimal GetLatestValue()
             => CurrentState.Values.Last();
 
-        public decimal SubmitOperationInputAndGetResult(IOperation operationInput)
+        public decimal SubmitEqualsRequestAndGetResult()
         {
-            //Update mutable state
-            CurrentState = GetStateAfterOperationEvaluation(currentValues(), newlyInputtedOperation());
+            //Update mutable state for equals request
+            CurrentState = stateAfterEqualsRequestEvaluation();
+
+            ICalculatorState stateAfterEqualsRequestEvaluation()
+                => isEqualsRequestValidForCurrentState()
+                    ? CalculatorStateFactory.GetCalculatorState(GetListWithSingleValue(CurrentState.ActiveOperation.GetResultForOperands(CurrentState.Values)), null)
+                    : throw new ArgumentException();
+            bool isEqualsRequestValidForCurrentState()
+                => CurrentState.ActiveOperation != null && CurrentState.Values.Count() == CurrentState.ActiveOperation.GetNumberOfOperands();
             
             //Return latest value
-            return GetLatestValue();
-            IImmutableList<decimal> currentValues() => CurrentState.Values;
-            IOperation newlyInputtedOperation() => operationInput;            
-        }
-
-        private ICalculatorState GetStateAfterOperationEvaluation(IImmutableList<decimal> values, IOperation operation)
-        {
-            return CalculatorStateFactory.GetCalculatorState(valuesAfterOperationEvaluation(), operationAfterOperationEvaluation());
-            
-            //Get values after evaluation
-            IImmutableList<decimal> valuesAfterOperationEvaluation() => canExecuteOperation()
-                ? ImmutableList<decimal>.Empty.Add(resultForOperation())
-                : values.Any()
-                    ? values
-                    : throw new ArgumentException();
-            bool canExecuteOperation() => hasOperation() && operation.GetNumberOfOperands() == values.Count();
-            bool hasOperation() => operation != null;
-
-            //Get result of operation
-            decimal resultForOperation() => operation.GetResultForOperands(valueList());
-            IList<decimal> valueList() => values.ToList();
-
-            //Get operation after evaluation
-            IOperation operationAfterOperationEvaluation() => canExecuteOperation()
-                ? null
-                : operation;
+            return GetLatestValue();           
         }
     }
 }
