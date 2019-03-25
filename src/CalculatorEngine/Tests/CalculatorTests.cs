@@ -34,10 +34,10 @@ namespace CalculatorEngine.Tests
         public void SubmitOperationInputAndGetResult_OperationWithoutOperandsOnInitialState_ReturnsResult()
         {
             //Assert
-            resultOfOperationWithoutOperandsOnInitialState().Should().Be(resultForMock());
+            resultOfSubmittingOperationWithoutOperandsOnInitialState().Should().Be(resultForMock());
 
             //Result of zero operand operation on initial state
-            decimal resultOfOperationWithoutOperandsOnInitialState() 
+            decimal resultOfSubmittingOperationWithoutOperandsOnInitialState() 
                 => GetCalculator().SubmitOperationInputAndGetResult(operation());
             IOperation operation()
                 => GetOperation(operandCount(), resultForMock());
@@ -67,11 +67,11 @@ namespace CalculatorEngine.Tests
         public void SubmitOperationInputAndGetResult_OperationWithOperandsOnInitialState_ThrowsArgumentException()
         {
             //Assert
-            Assert.Throws<ArgumentException>(submitOperationWithOperandsOnInitialState());
+            Assert.Throws<ArgumentException>(() => resultOfSubmittingOperationWithOperandsOnInitialState());
 
-            //Result of zero operand operation on initial state
-            Action submitOperationWithOperandsOnInitialState()
-                => () => GetCalculator().SubmitOperationInputAndGetResult(operation());
+            //Result operation with operands on initial state
+            decimal resultOfSubmittingOperationWithOperandsOnInitialState()
+                => GetCalculator().SubmitOperationInputAndGetResult(operation());
             IOperation operation()
                 => GetOperation(operandCount());
             int operandCount()
@@ -79,18 +79,29 @@ namespace CalculatorEngine.Tests
         }
 
         [Fact]
-        public void SubmitValueInputAndGetResult_Always_ReturnsValue()
+        public void SubmitValueInputAndGetResult_InitialState_ReturnsValue()
         {
             //Assert
-            resultOfValueInputOnInitialState().Should().Be(valueInput());
+            resultOnInitialState().Should().Be(valueInput());
 
-            //Result of zero operand operation on initial state
-            decimal resultOfValueInputOnInitialState() 
+            //Result on initial state
+            decimal resultOnInitialState() 
                 => GetCalculator().SubmitValueInputAndGetResult(valueInput());
 
             //Result for mock
             decimal valueInput()
                 => 123;            
+        }
+
+        [Fact]
+        public void SubmitEqualsRequestAndGetResult_InitialState_ThrowsArgumentException()
+        {
+            //Assert
+            Assert.Throws<ArgumentException>(() => resultOnInitialState());
+
+            //Result on initial state
+            decimal resultOnInitialState()
+                => GetCalculator().SubmitEqualsRequestAndGetResult();
         }
     }
 }
