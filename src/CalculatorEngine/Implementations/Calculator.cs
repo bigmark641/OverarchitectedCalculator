@@ -29,25 +29,28 @@ namespace CalculatorEngine.Implementations
             //Update mutable state for new value
             CurrentState = isValueInputValidForCurrentState()
                 ? CalculatorStateFactory.GetCalculatorState(valuesAfterNewValueInput(), operationAfterNerValueInput())
-                : throw new ArgumentException();
+                : throw new InvalidOperationException();
             
             //Return latest value
             return GetLatestValue();
 
             //Is valid?            
-            bool isValueInputValidForCurrentState() => !CurrentState.Values.Any() || CurrentState.ActiveOperation != null;
+            bool isValueInputValidForCurrentState() => !CurrentState.Values.Any() || (CurrentState.ActiveOperation != null && !IsCurrentOperationComplete());
             
             //Values and operation after new input
             IImmutableList<decimal> valuesAfterNewValueInput() => CurrentState.Values.Add(valueInput);
             IOperation operationAfterNerValueInput() => CurrentState.ActiveOperation;
         }
 
+        private bool IsCurrentOperationComplete()
+            => CurrentState.Values.Count() == CurrentState.ActiveOperation.GetNumberOfOperands();
+
         public decimal SubmitOperationInputAndGetResult(IOperation newOperation)
         {
             //Update mutable state for new operation
             CurrentState = isOperationInputValidForCurrentState()
                 ?   stateAfterNewOperationInput()
-                : throw new ArgumentException();
+                : throw new InvalidOperationException();
 
             //Return latest value
             return GetLatestValue();         
@@ -103,14 +106,14 @@ namespace CalculatorEngine.Implementations
             //Update mutable state for equals request
             CurrentState = isEqualsRequestValidForCurrentState()
                     ? stateAfterEqualsRequestEvaluation()
-                    : throw new ArgumentException();
+                    : throw new InvalidOperationException();
             
             //Return latest value
             return GetLatestValue();    
 
             //Is valid?
             bool isEqualsRequestValidForCurrentState()
-                => CurrentState.ActiveOperation != null && CurrentState.Values.Count() == CurrentState.ActiveOperation.GetNumberOfOperands();       
+                => CurrentState.ActiveOperation != null && IsCurrentOperationComplete();       
             //State after evaluation
             ICalculatorState stateAfterEqualsRequestEvaluation()
                 => CalculatorStateFactory.GetCalculatorState(valuesAfterEqualsRequestEvaluation(), null);
