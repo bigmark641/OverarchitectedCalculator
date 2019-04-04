@@ -4,7 +4,7 @@ using CalculatorEngine;
 
 namespace CalculatorEngine.Implementations
 {
-    class CalculatorState : ICalculatorState
+    public class CalculatorState : ICalculatorState
     {
         public IImmutableList<decimal> Values {get;}
         public IOperation ActiveOperation {get;}

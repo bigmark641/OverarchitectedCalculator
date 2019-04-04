@@ -6,7 +6,7 @@ using CalculatorEngine;
 
 namespace CalculatorEngine.Implementations
 {
-    class Calculator : ICalculator
+    public class Calculator : ICalculator
     {
         private ICalculatorStateFactory CalculatorStateFactory { get; }
 

@@ -7,9 +7,27 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Functional CSharp Calculator.csproj"
+                "${workspaceFolder}/Calculator/Calculator.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/Calculator.Tests/Calculator.Tests.csproj",
+                "/p:CollectCoverage=true",
+                "/p:Exclude=[xunit.*]*",
+                "/p:CoverletOutputFormat=lcov",
+                "/p:CoverletOutput=../lcov"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }
