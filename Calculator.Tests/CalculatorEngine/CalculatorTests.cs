@@ -5,9 +5,10 @@ using System.Linq;
 using Xunit;
 using Moq;
 using FluentAssertions;
-using CalculatorEngine.Implementations;
+using Calculator.CalculatorEngine;
+using Calculator.CalculatorEngine.Implementations;
 
-namespace CalculatorEngine.Tests
+namespace Calculator.Tests.CalculatorEngine
 {
     public class CalculatorTests
     {
@@ -31,23 +32,101 @@ namespace CalculatorEngine.Tests
                 }));
         }
 
-        [Fact]
-        public void SubmitValueInputAndGetResult_InitialState_ReturnsInput()
-        {
-            //Assert
-            resultOnInitialState().Should().Be(input());
 
-            //Result on initial state
-            decimal resultOnInitialState() 
-                => GetCalculatorWithSubmissions().SubmitValueInputAndGetResult(input());
-            decimal input()
-                => 123;            
+        //////////////////////////////////
+        // Test specific inputs/outputs //
+        //////////////////////////////////
+
+        [Theory]
+        [InlineData(null, 1, "1")] //Single value
+        [InlineData(null, 1, "1", "+")] //Value and operation
+        [InlineData(null, 2, "1", "+", "2")] //Last value
+        [InlineData(null, 3, "1", "+", "2", "=")] //Equals
+        [InlineData(null, 3, "1", "+", "2", "+")] //Previous operation result
+        [InlineData(null, 6, "1", "+", "2", "+", "3", "=")] //Chained operations      
+        [InlineData(null, 20, "2", "+", "3", "*", "4", "=")] //Chained operations ordered    
+        [InlineData(null, 10, "2", "*", "3", "+", "4", "=")] //Chained operations order reversed
+        [InlineData(null, -1, "1", "+", "-2", "=")] //Negatives
+        [InlineData(null, 4, "2", "^2")] //Unary operation
+        [InlineData(null, 7, "2", "^2", "+", "3", "=")] //Unary chained operation
+        [InlineData(null, 9, "1", "+", "3", "^2")] //Unary later operation
+        [InlineData(null, 11, "2", "+", "3", "^2", "=")] //Unary chained operation
+        [InlineData(null, 12.1, "10", "CompoundInterest", ".1", "2", "=")] //Ternary operation
+        [InlineData(null, 3.14, "PI")] //Nullary operation
+        [InlineData(null, 4.14, "PI", "+", "1", "=")] //Nulary chained operation
+        [InlineData(null, 5.14, "2", "+", "PI", "=")] //Nulary chained operation reversed
+        //Invalid operations
+        [InlineData(typeof(InvalidOperationException), 0, "+")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "1")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "PI")]
+        [InlineData(typeof(InvalidOperationException), 0, "=")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "=")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "=")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "+")]
+        [InlineData(typeof(InvalidOperationException), 0, "^2")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "=")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "1")]
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "PI")]
+        public void TestCalculatorValidResults(Type expectedExceptionType, decimal expectedResult, params string[] inputs)
+        {
+            //Arrange
+            var calculator = GetCalculatorWithSubmissions();
+            Exception thrownException = null;
+            decimal lastResult = 0;
+
+            //Act
+            try
+            {
+                foreach (var input in inputs)
+                    lastResult = resultOfSubmittedInput(input);
+            }
+            catch(Exception exception)
+            {
+                thrownException = exception;
+            }
+
+            //Assert
+            if (expectedExceptionType != null)
+            {
+                thrownException.Should().BeAssignableTo(expectedExceptionType);
+            }
+            else
+            {
+                thrownException.Should().BeNull();
+                lastResult.Should().Be(expectedResult);
+            }
+
+            //Result of submitted input
+            decimal resultOfSubmittedInput(string input)
+                => input.Equals("+") ? calculator.SubmitOperationInputAndGetResult(additionOperation())
+                    : input.Equals("*") ? calculator.SubmitOperationInputAndGetResult(multiplicationOperation())
+                    : input.Equals("^2") ? calculator.SubmitOperationInputAndGetResult(squareOperation())
+                    : input.Equals("PI") ? calculator.SubmitOperationInputAndGetResult(piOperation())
+                    : input.Equals("CompoundInterest") ? calculator.SubmitOperationInputAndGetResult(compoundInterestOperation())
+                    : input.Equals("=") ? calculator.SubmitEqualsRequestAndGetResult()
+                    : calculator.SubmitValueInputAndGetResult(decimal.Parse(input));
+            //Mocked operations
+            IOperation additionOperation()
+                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                    => operands.ToList()[0] + operands.ToList()[1]));
+            IOperation multiplicationOperation()
+                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                    => operands.ToList()[0] * operands.ToList()[1]));
+            IOperation squareOperation()
+                => GetOperation(numberOfOperands: 1, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                    => operands.ToList()[0] * operands.ToList()[0]));
+            IOperation piOperation()
+                => GetOperation(numberOfOperands: 0, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                    => 3.14M));
+            IOperation compoundInterestOperation()
+                => GetOperation(numberOfOperands: 3, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands)
+                    => operands.ToList()[0] * (decimal)Math.Pow((double)(1 + operands.ToList()[1]), (double)operands.ToList()[2])));
         }
 
-        private Implementations.Calculator GetCalculatorWithSubmissions(params object[] inputs)
+        private Calculator.CalculatorEngine.Implementations.Calculator GetCalculatorWithSubmissions(params object[] inputs)
         {
             //Get initial calculator
-            var calculator = new Implementations.Calculator(CalculatorStateFactoryMock.Object);
+            var calculator = new Calculator.CalculatorEngine.Implementations.Calculator(CalculatorStateFactoryMock.Object);
             
             //Execute state updates
             foreach (var input in inputs)
@@ -62,6 +141,38 @@ namespace CalculatorEngine.Tests
 
             //Return
             return calculator;
+        }
+
+        private IOperation GetOperation(int numberOfOperands, decimal operationResult = 0, Func<IEnumerable<decimal>, decimal> resultFunction = null)
+        {
+            var operationMock = new Mock<IOperation>();
+            operationMock.Setup(x => x.GetNumberOfOperands()).Returns(numberOfOperands);
+            
+            if (resultFunction != null)
+                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IEnumerable<decimal>>())).Returns(resultFunction);
+            else
+                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IList<decimal>>())).Returns(operationResult);
+
+            var operation = operationMock.Object;
+            return operation;
+        }
+
+
+        ////////////////////////////////
+        // Test general functionality //
+        ////////////////////////////////
+
+        [Fact]
+        public void SubmitValueInputAndGetResult_InitialState_ReturnsInput()
+        {
+            //Assert
+            resultOnInitialState().Should().Be(input());
+
+            //Result on initial state
+            decimal resultOnInitialState() 
+                => GetCalculatorWithSubmissions().SubmitValueInputAndGetResult(input());
+            decimal input()
+                => 123;            
         }
 
         [Fact]
@@ -114,20 +225,6 @@ namespace CalculatorEngine.Tests
                 => GetCalculatorWithSubmissions(1, GetOperation(2), 1).SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
-        }
-
-        private IOperation GetOperation(int numberOfOperands, decimal operationResult = 0, Func<IEnumerable<decimal>, decimal> resultFunction = null)
-        {
-            var operationMock = new Mock<IOperation>();
-            operationMock.Setup(x => x.GetNumberOfOperands()).Returns(numberOfOperands);
-            
-            if (resultFunction != null)
-                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IEnumerable<decimal>>())).Returns(resultFunction);
-            else
-                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IList<decimal>>())).Returns(operationResult);
-
-            var operation = operationMock.Object;
-            return operation;
         }
 
         [Fact]
@@ -253,92 +350,6 @@ namespace CalculatorEngine.Tests
                 => GetOperation(2, operationResult());
             decimal operationResult()
                 => 123;
-        }
-
-        [Theory]
-        [InlineData(null, 1, "1")] //Single value
-        [InlineData(null, 1, "1", "+")] //Value and operation
-        [InlineData(null, 2, "1", "+", "2")] //Last value
-        [InlineData(null, 3, "1", "+", "2", "=")] //Equals
-        [InlineData(null, 3, "1", "+", "2", "+")] //Previous operation result
-        [InlineData(null, 6, "1", "+", "2", "+", "3", "=")] //Chained operations      
-        [InlineData(null, 20, "2", "+", "3", "*", "4", "=")] //Chained operations ordered    
-        [InlineData(null, 10, "2", "*", "3", "+", "4", "=")] //Chained operations order reversed
-        [InlineData(null, -1, "1", "+", "-2", "=")] //Negatives
-        [InlineData(null, 4, "2", "^2")] //Unary operation
-        [InlineData(null, 7, "2", "^2", "+", "3", "=")] //Unary chained operation
-        [InlineData(null, 9, "1", "+", "3", "^2")] //Unary later operation
-        [InlineData(null, 11, "2", "+", "3", "^2", "=")] //Unary chained operation
-        [InlineData(null, 12.1, "10", "CompoundInterest", ".1", "2", "=")] //Ternary operation
-        [InlineData(null, 3.14, "PI")] //Nullary operation
-        [InlineData(null, 4.14, "PI", "+", "1", "=")] //Nulary chained operation
-        [InlineData(null, 5.14, "2", "+", "PI", "=")] //Nulary chained operation reversed
-        //Invalid operations
-        [InlineData(typeof(InvalidOperationException), 0, "+")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "1")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "PI")]
-        [InlineData(typeof(InvalidOperationException), 0, "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "+")]
-        [InlineData(typeof(InvalidOperationException), 0, "^2")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "1")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "PI")]
-        public void TestCalculatorValidResults(Type expectedExceptionType, decimal expectedResult, params string[] inputs)
-        {
-            //Arrange
-            var calculator = GetCalculatorWithSubmissions();
-            Exception thrownException = null;
-            decimal lastResult = 0;
-
-            //Act
-            try
-            {
-                foreach (var input in inputs)
-                    lastResult = resultOfSubmittedInput(input);
-            }
-            catch(Exception exception)
-            {
-                thrownException = exception;
-            }
-
-            //Assert
-            if (expectedExceptionType != null)
-            {
-                thrownException.Should().BeAssignableTo(expectedExceptionType);
-            }
-            else
-            {
-                thrownException.Should().BeNull();
-                lastResult.Should().Be(expectedResult);
-            }
-
-            //Result of submitted input
-            decimal resultOfSubmittedInput(string input)
-                => input.Equals("+") ? calculator.SubmitOperationInputAndGetResult(additionOperation())
-                    : input.Equals("*") ? calculator.SubmitOperationInputAndGetResult(multiplicationOperation())
-                    : input.Equals("^2") ? calculator.SubmitOperationInputAndGetResult(squareOperation())
-                    : input.Equals("PI") ? calculator.SubmitOperationInputAndGetResult(piOperation())
-                    : input.Equals("CompoundInterest") ? calculator.SubmitOperationInputAndGetResult(compoundInterestOperation())
-                    : input.Equals("=") ? calculator.SubmitEqualsRequestAndGetResult()
-                    : calculator.SubmitValueInputAndGetResult(decimal.Parse(input));
-            //Mocked operations
-            IOperation additionOperation()
-                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
-                    => operands.ToList()[0] + operands.ToList()[1]));
-            IOperation multiplicationOperation()
-                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
-                    => operands.ToList()[0] * operands.ToList()[1]));
-            IOperation squareOperation()
-                => GetOperation(numberOfOperands: 1, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
-                    => operands.ToList()[0] * operands.ToList()[0]));
-            IOperation piOperation()
-                => GetOperation(numberOfOperands: 0, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
-                    => 3.14M));
-            IOperation compoundInterestOperation()
-                => GetOperation(numberOfOperands: 3, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands)
-                    => operands.ToList()[0] * (decimal)Math.Pow((double)(1 + operands.ToList()[1]), (double)operands.ToList()[2])));
         }
     }
 }

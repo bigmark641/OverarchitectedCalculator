@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Immutable;
-using CalculatorEngine.Implementations;
+using Calculator.CalculatorEngine.Implementations;
 
-namespace CalculatorEngine.Implementations
+namespace Calculator.CalculatorEngine.Implementations
 {
     public class CalculatorStateFactory : ICalculatorStateFactory
     {

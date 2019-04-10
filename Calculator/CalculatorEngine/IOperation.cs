@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CalculatorEngine
+namespace Calculator.CalculatorEngine
 {
     public interface IOperation
     {

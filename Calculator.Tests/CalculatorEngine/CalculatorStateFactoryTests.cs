@@ -3,15 +3,18 @@ using System.Collections.Immutable;
 using Xunit;
 using Moq;
 using FluentAssertions;
-using CalculatorEngine.Implementations;
+using Calculator.CalculatorEngine;
+using Calculator.CalculatorEngine.Implementations;
 
-namespace CalculatorEngine.Tests
+namespace Calculator.Tests.CalculatorEngine
 {
-    public class CalculatorStateTests
+    public class CalculatorStateFactoryTests
     {
-    
+        CalculatorStateFactory GetCalculatorStateFactory()
+                => new CalculatorStateFactory();
+
         [Fact]
-        public void Constructor_Always_ConstructsStateWithValues()
+        public void Constructor_Always_ReturnsCalculatorStateWithValues()
         {
             //Assert
             constructedCalculatorStateValues().Should().BeEquivalentTo(valuesForConstructor());
@@ -19,28 +22,28 @@ namespace CalculatorEngine.Tests
             //Constructed calculator state values
             IImmutableList<decimal> constructedCalculatorStateValues()
                 => constructedCalculatorState().Values;
-            CalculatorState constructedCalculatorState() 
-                => new CalculatorState(valuesForConstructor(), null);
-
+            ICalculatorState constructedCalculatorState()
+                => GetCalculatorStateFactory().GetCalculatorState(valuesForConstructor(), null);
+            
             //Values for constructor
             IImmutableList<decimal> valuesForConstructor()
                 => ImmutableList<decimal>.Empty.Add(123);
         }
-    
+
         [Fact]
-        public void Constructor_Always_ConstructsStateWithOperation()
+        public void Constructor_Always_ReturnsCalculatorStateWithOperation()
         {
             //Arrange
             IOperation operationForConstructor = Mock.Of<IOperation>();
 
             //Assert
             constructedCalculatorStateOperation().Should().BeSameAs(operationForConstructor);
-            
+
             //Constructed calculator state operation
             IOperation constructedCalculatorStateOperation()
                 => constructedCalculatorState().ActiveOperation;
-            CalculatorState constructedCalculatorState() 
-                => new CalculatorState(null, operationForConstructor);
+            ICalculatorState constructedCalculatorState()
+                => GetCalculatorStateFactory().GetCalculatorState(null, operationForConstructor);
         }
     }
 }

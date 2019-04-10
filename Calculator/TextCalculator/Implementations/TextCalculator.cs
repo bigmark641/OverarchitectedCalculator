@@ -1,7 +1,7 @@
 using System;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace TextCalculator.Implementations
+namespace Calculator.TextCalculator.Implementations
 {
     class TextCalculator : ITextCalculator
     {

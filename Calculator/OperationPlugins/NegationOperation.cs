@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace OperationPlugins
+namespace Calculator.OperationPlugins
 {
     [Operator("neg")]
     class NegationOperation : Operation

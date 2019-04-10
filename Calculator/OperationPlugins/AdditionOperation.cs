@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace OperationPlugins
+namespace Calculator.OperationPlugins
 {
     [Operator("+")]
     class AdditionOperation : Operation

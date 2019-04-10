@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Immutable;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace CalculatorEngine.Implementations
+namespace Calculator.CalculatorEngine.Implementations
 {
     public class CalculatorState : ICalculatorState
     {
@@ -11,6 +11,8 @@ namespace CalculatorEngine.Implementations
 
         public CalculatorState(IImmutableList<decimal> values, IOperation operation)
         {
+
+            //Initialize readonly state
             Values = values;
             ActiveOperation = operation;
         }

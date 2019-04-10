@@ -1,6 +1,6 @@
 using System;
 
-namespace CalculatorEngine
+namespace Calculator.CalculatorEngine
 {
     public interface ICalculator
     {

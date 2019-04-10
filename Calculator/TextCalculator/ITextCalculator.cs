@@ -1,6 +1,6 @@
 using System;
 
-namespace TextCalculator
+namespace Calculator.TextCalculator
 {
     public interface ITextCalculator
     {

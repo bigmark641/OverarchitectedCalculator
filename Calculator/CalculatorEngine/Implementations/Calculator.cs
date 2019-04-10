@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace CalculatorEngine.Implementations
+namespace Calculator.CalculatorEngine.Implementations
 {
     public class Calculator : ICalculator
     {
+        //Injected dependencies
         private ICalculatorStateFactory CalculatorStateFactory { get; }
 
         //Mutable application state
@@ -28,26 +29,33 @@ namespace CalculatorEngine.Implementations
         {
             //Update mutable state for new value
             CurrentState = isValueInputValidForCurrentState()
-                ? CalculatorStateFactory.GetCalculatorState(valuesAfterNewValueInput(), operationAfterNerValueInput())
+                ? CalculatorStateFactory.GetCalculatorState(valuesAfterNewValueInput(), operationAfterNewValueInput())
                 : throw new InvalidOperationException();
             
             //Return latest value
             return GetLatestValue();
 
             //Is valid?            
-            bool isValueInputValidForCurrentState() => !CurrentState.Values.Any() || (CurrentState.ActiveOperation != null && !IsCurrentOperationComplete());
-            
+            bool isValueInputValidForCurrentState() => !HasReceivedValues() || hasIncompleteOperation();
+            bool hasIncompleteOperation() => HasActiveOperation() && !IsActiveOperationComplete();
+                        
             //Values and operation after new input
             IImmutableList<decimal> valuesAfterNewValueInput() => CurrentState.Values.Add(valueInput);
-            IOperation operationAfterNerValueInput() => CurrentState.ActiveOperation;
+            IOperation operationAfterNewValueInput() => CurrentState.ActiveOperation;
         }
 
-        private bool IsCurrentOperationComplete()
+        bool HasReceivedValues() 
+            => CurrentState.Values.Any();
+
+        bool HasActiveOperation() 
+            => CurrentState.ActiveOperation != null;
+
+        private bool IsActiveOperationComplete()
             => CurrentState.Values.Count() == CurrentState.ActiveOperation.GetNumberOfOperands();
 
         public decimal SubmitOperationInputAndGetResult(IOperation newOperation)
         {
-            //Update mutable state for new operation
+            //Update mutable state for new operation (side effects)
             CurrentState = isOperationInputValidForCurrentState()
                 ?   stateAfterNewOperationInput()
                 : throw new InvalidOperationException();
@@ -59,9 +67,9 @@ namespace CalculatorEngine.Implementations
             bool isOperationInputValidForCurrentState()
                 => EvaluateFunctionForNewOperation(newOperation,
                     ifNoOperands: () 
-                        => !CurrentState.Values.Any() || CurrentState.ActiveOperation != null,
+                        => !HasReceivedValues() || HasActiveOperation(),
                     ifSingleOperand: () 
-                        => CurrentState.Values.Any(),
+                        => HasReceivedValues(),
                     ifMultipleOperandsWithoutExistingOperation: () 
                         => CurrentState.Values.Count() == 1,
                     ifMultipleOperandsWithExistingOperation: () 
@@ -103,7 +111,7 @@ namespace CalculatorEngine.Implementations
 
         public decimal SubmitEqualsRequestAndGetResult()
         {
-            //Update mutable state for equals request
+            //Update mutable state for equals request (side effects)
             CurrentState = isEqualsRequestValidForCurrentState()
                     ? stateAfterEqualsRequestEvaluation()
                     : throw new InvalidOperationException();
@@ -113,7 +121,7 @@ namespace CalculatorEngine.Implementations
 
             //Is valid?
             bool isEqualsRequestValidForCurrentState()
-                => CurrentState.ActiveOperation != null && IsCurrentOperationComplete();       
+                => HasActiveOperation() && IsActiveOperationComplete();       
             //State after evaluation
             ICalculatorState stateAfterEqualsRequestEvaluation()
                 => CalculatorStateFactory.GetCalculatorState(valuesAfterEqualsRequestEvaluation(), null);

@@ -1,7 +1,7 @@
 using System;
-using CalculatorEngine;
+using Calculator.CalculatorEngine;
 
-namespace TextCalculator
+namespace Calculator.TextCalculator
 {
     public interface IOperationFactory 
     {

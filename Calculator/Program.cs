@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CalculatorEngine;
-using CalculatorEngine.Implementations;
-using TextCalculator;
-using TextCalculator.Implementations;
-using OperationPlugins;
+using Calculator.CalculatorEngine;
+using Calculator.CalculatorEngine.Implementations;
+using Calculator.TextCalculator;
+using Calculator.TextCalculator.Implementations;
+using Calculator.OperationPlugins;
 
 namespace Calculator
 {

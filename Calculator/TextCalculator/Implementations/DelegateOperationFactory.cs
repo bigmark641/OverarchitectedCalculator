@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TextCalculator;
-using CalculatorEngine;
+using Calculator.TextCalculator;
+using Calculator.CalculatorEngine;
 
-namespace TextCalculator.Implementations
+namespace Calculator.TextCalculator.Implementations
 {
     class DelegateOperationFactory : IOperationFactory
     {
