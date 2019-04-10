@@ -5,7 +5,7 @@ using Calculator.CalculatorEngine;
 namespace Calculator.OperationPlugins
 {
     [Operator("+")]
-    class AdditionOperation : Operation
+    public class AdditionOperation : Operation
     { 
         public override int GetNumberOfOperands()
             => 2;

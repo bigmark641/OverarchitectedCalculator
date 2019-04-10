@@ -16,7 +16,7 @@ namespace Calculator.CalculatorEngine.Implementations
 
         public Calculator(ICalculatorStateFactory calculatorStateFactory)
         {
-            //Set injected dependency
+            //Inject readonly dependencies
             CalculatorStateFactory = calculatorStateFactory;
 
             //Initialize mutable state
@@ -27,7 +27,7 @@ namespace Calculator.CalculatorEngine.Implementations
 
         public decimal SubmitValueInputAndGetResult(decimal valueInput)
         {
-            //Update mutable state for new value
+            //Update mutable state for new value (statement with side effects)
             CurrentState = isValueInputValidForCurrentState()
                 ? CalculatorStateFactory.GetCalculatorState(valuesAfterNewValueInput(), operationAfterNewValueInput())
                 : throw new InvalidOperationException();
@@ -44,10 +44,10 @@ namespace Calculator.CalculatorEngine.Implementations
             IOperation operationAfterNewValueInput() => CurrentState.ActiveOperation;
         }
 
-        bool HasReceivedValues() 
+        private bool HasReceivedValues() 
             => CurrentState.Values.Any();
 
-        bool HasActiveOperation() 
+        private bool HasActiveOperation() 
             => CurrentState.ActiveOperation != null;
 
         private bool IsActiveOperationComplete()
@@ -55,7 +55,7 @@ namespace Calculator.CalculatorEngine.Implementations
 
         public decimal SubmitOperationInputAndGetResult(IOperation newOperation)
         {
-            //Update mutable state for new operation (side effects)
+            //Update mutable state for new operation (statement with side effects)
             CurrentState = isOperationInputValidForCurrentState()
                 ?   stateAfterNewOperationInput()
                 : throw new InvalidOperationException();
@@ -111,7 +111,7 @@ namespace Calculator.CalculatorEngine.Implementations
 
         public decimal SubmitEqualsRequestAndGetResult()
         {
-            //Update mutable state for equals request (side effects)
+            //Update mutable state for equals request (statement with side effects)
             CurrentState = isEqualsRequestValidForCurrentState()
                     ? stateAfterEqualsRequestEvaluation()
                     : throw new InvalidOperationException();
@@ -129,13 +129,13 @@ namespace Calculator.CalculatorEngine.Implementations
                 => GetListWithSingleValue(CurrentState.ActiveOperation.GetResultForOperands(CurrentState.Values));
         }
             
-        IImmutableList<decimal> GetCurrentValuesWithLastReplaced(decimal newValue)
+        private IImmutableList<decimal> GetCurrentValuesWithLastReplaced(decimal newValue)
             => CurrentState.Values.SetItem(CurrentState.Values.Count() - 1, newValue);
         
-        IImmutableList<decimal> GetCurrentValuesPlusNewValue(decimal newValue)
+        private IImmutableList<decimal> GetCurrentValuesPlusNewValue(decimal newValue)
             => CurrentState.Values.Add(newValue);
         
-        IImmutableList<decimal> GetListWithSingleValue(decimal value)
+        private IImmutableList<decimal> GetListWithSingleValue(decimal value)
             => ImmutableList<decimal>.Empty.Add(value);
 
         private decimal GetLatestValue()

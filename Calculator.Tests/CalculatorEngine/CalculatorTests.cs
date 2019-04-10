@@ -37,7 +37,7 @@ namespace Calculator.Tests.CalculatorEngine
         // Test specific inputs/outputs //
         //////////////////////////////////
 
-        [Theory]
+        [Theory]  //Format: (ExpectedExceptionType, ExpectedResult, Inputs[])
         [InlineData(null, 1, "1")] //Single value
         [InlineData(null, 1, "1", "+")] //Value and operation
         [InlineData(null, 2, "1", "+", "2")] //Last value
@@ -56,18 +56,23 @@ namespace Calculator.Tests.CalculatorEngine
         [InlineData(null, 4.14, "PI", "+", "1", "=")] //Nulary chained operation
         [InlineData(null, 5.14, "2", "+", "PI", "=")] //Nulary chained operation reversed
         //Invalid operations
-        [InlineData(typeof(InvalidOperationException), 0, "+")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "1")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "PI")]
-        [InlineData(typeof(InvalidOperationException), 0, "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "+")]
-        [InlineData(typeof(InvalidOperationException), 0, "^2")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "=")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "1")]
-        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "PI")]
-        public void TestCalculatorValidResults(Type expectedExceptionType, decimal expectedResult, params string[] inputs)
+        [InlineData(typeof(InvalidOperationException), 0, "+")] //Needs value first
+        [InlineData(typeof(InvalidOperationException), 0, "=")] //Needs value first
+        [InlineData(typeof(InvalidOperationException), 0, "^2")] //Missing operand
+        [InlineData(typeof(InvalidOperationException), 0, "1", "1")] //Needs operation before second value
+        [InlineData(typeof(InvalidOperationException), 0, "1", "=")] //Missing operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "PI")] //Needs operation before second value
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "+")] //Incomplete operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "=")] //Incomplete operation
+        //[InlineData(typeof(InvalidOperationException), 0, "1", "+", "^2")] //Missing operand to square
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "1")] //Too many operands
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "1")] //Missing second operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "=")] //Missing second operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "+", "1", "=", "PI")] //Missing second operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "CompoundInterest", "1", "+")] //Incomplete operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "CompoundInterest", "1", "=")] //Incomplete operation
+        [InlineData(typeof(InvalidOperationException), 0, "1", "CompoundInterest", "1", "1", "1")] //Too many operands
+        public void TestCalculatorInputResults(Type expectedExceptionType, decimal expectedResult, params string[] inputs)
         {
             //Arrange
             var calculator = GetCalculatorWithSubmissions();

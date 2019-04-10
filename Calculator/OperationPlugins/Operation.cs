@@ -5,7 +5,7 @@ using Calculator.CalculatorEngine;
 
 namespace Calculator.OperationPlugins
 {
-    abstract class Operation : IOperation
+    public abstract class Operation : IOperation
     {
         public abstract int GetNumberOfOperands();
 
