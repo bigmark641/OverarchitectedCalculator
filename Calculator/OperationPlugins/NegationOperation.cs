@@ -6,12 +6,12 @@ using Calculator.CalculatorEngine;
 namespace Calculator.OperationPlugins
 {
     [Operator("neg")]
-    class NegationOperation : Operation
+    public class NegationOperation : Operation
     {
-        public override int GetNumberOfOperands()
+        public override int NumberOfOperands()
             => 1;
 
-        protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
+        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
             => -operands.Single();
     }
 }

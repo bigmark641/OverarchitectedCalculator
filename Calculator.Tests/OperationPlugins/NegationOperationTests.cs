@@ -10,25 +10,24 @@ using Calculator.OperationPlugins;
 
 namespace Calculator.Tests.OperationPlugins
 {
-    public class AdditionOperationTests : OperationTests
+    public class NegationOperationTests : OperationTests
     {
 
         [Fact]
-        public void GetNumberOfOperands_Always_ReturnsTwo()
+        public void GetNumberOfOperands_Always_ReturnsOne()
         {
             //Assert
-            numberOfOperands().Should().Be(2);
+            numberOfOperands().Should().Be(1);
 
             //Local functions
             int numberOfOperands()
-                => new AdditionOperation().NumberOfOperands();
+                => new NegationOperation().NumberOfOperands();
         }
 
         [Theory]
-        [InlineData(2.5, 1, 1.5)]
-        [InlineData(1, 1, 0)]
-        [InlineData(-1, 1, -2)]
-        [InlineData(0, 0, 0)]
+        [InlineData(-2, 2)]
+        [InlineData(3, -3)]
+        [InlineData(0, 0)]
         public void GetResultForOperands_Operands_Results(decimal expectedResult, params object[] operands)
         {
             //Assert
@@ -36,7 +35,7 @@ namespace Calculator.Tests.OperationPlugins
 
             //Local functions
             decimal resultForOperands()
-                => new AdditionOperation().ResultForOperands(DecimalOperands(operands));
+                => new NegationOperation().ResultForOperands(DecimalOperands(operands));
         }
     }
 }

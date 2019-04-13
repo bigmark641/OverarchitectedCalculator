@@ -2,7 +2,7 @@ using System;
 
 namespace Calculator.OperationPlugins
 {
-    class OperatorAttribute : Attribute
+    public class OperatorAttribute : Attribute
     {
         public string Symbol {get;}
 

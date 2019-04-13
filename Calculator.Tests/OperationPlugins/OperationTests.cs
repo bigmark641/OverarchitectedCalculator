@@ -15,13 +15,15 @@ namespace Calculator.Tests.OperationPlugins
     {
 
         protected IEnumerable<decimal> DecimalOperands(IEnumerable<object> operands)
-            => operands.Select(x => (decimal) (int) x);
+        {
+            return operands.Select(x => asDecimal(x));
 
-        private IOperation GetOperation(Type type)
-            => (IOperation) DefaultOperationConstructor(type).Invoke(new object[]{});
-
-        private ConstructorInfo DefaultOperationConstructor(Type type) 
-            => type.GetConstructor(Type.EmptyTypes);
+            //Local functions
+            decimal asDecimal(object number)
+            => number is int ?
+                (decimal) (int) number :
+                (decimal) (double) number;
+        }
 
         [Fact]
         public void GetResultForValidatedOperands_TernaryOperationWithThreeOperands_ReturnsResult()
@@ -31,7 +33,7 @@ namespace Calculator.Tests.OperationPlugins
 
             //Result of operation
             decimal resultOfTernaryOperationWithThreeOperands()
-                => TernaryOperation().GetResultForOperands(threeOperands());
+                => TernaryOperation().ResultForOperands(threeOperands());
             IEnumerable<decimal> threeOperands()
                 => new List<decimal> { 1, 1, 1 };
         }
@@ -43,10 +45,10 @@ namespace Calculator.Tests.OperationPlugins
         {
             public const decimal RESULT_OF_OPERATION = 123;
 
-            public override int GetNumberOfOperands()
+            public override int NumberOfOperands()
                 => 3;
 
-            protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
+            protected override decimal ResultForValidatedOperands(IList<decimal> operands)
                 => RESULT_OF_OPERATION;
         }
 
@@ -56,9 +58,9 @@ namespace Calculator.Tests.OperationPlugins
             //Assert
             Assert.Throws<ArgumentException>(() => resultOfTernaryOperationWithTwoOperands());
             
-            //Result of operation
+            //Local functions
             decimal resultOfTernaryOperationWithTwoOperands()
-                => TernaryOperation().GetResultForOperands(twoOperands());
+                => TernaryOperation().ResultForOperands(twoOperands());
             IEnumerable<decimal> twoOperands()
                 => new List<decimal> { 1, 1 };
         }
@@ -69,9 +71,9 @@ namespace Calculator.Tests.OperationPlugins
             //Assert
             Assert.Throws<ArgumentException>(() => resultOfTernaryOperationWithTwoOperands());
             
-            //Result of operation
+            //Local functions
             decimal resultOfTernaryOperationWithTwoOperands()
-                => TernaryOperation().GetResultForOperands(fourOperands());
+                => TernaryOperation().ResultForOperands(fourOperands());
             IEnumerable<decimal> fourOperands()
                 => new List<decimal> { 1, 1, 1, 1 };
         }

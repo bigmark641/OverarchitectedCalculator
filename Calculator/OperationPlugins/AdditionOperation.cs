@@ -7,10 +7,10 @@ namespace Calculator.OperationPlugins
     [Operator("+")]
     public class AdditionOperation : Operation
     { 
-        public override int GetNumberOfOperands()
+        public override int NumberOfOperands()
             => 2;
 
-        protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
+        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
             => operands[0] + operands[1];
     }
 }

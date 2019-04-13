@@ -6,7 +6,7 @@ namespace Calculator.CalculatorEngine.Implementations
 {
     public class CalculatorStateFactory : ICalculatorStateFactory
     {
-        public ICalculatorState GetCalculatorState(IImmutableList<decimal> values, IOperation operation)
+        public ICalculatorState NewCalculatorState(IImmutableList<decimal> values, IOperation operation)
             => new CalculatorState(values, operation);
     }
 }

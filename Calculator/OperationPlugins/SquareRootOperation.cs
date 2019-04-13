@@ -6,12 +6,22 @@ using Calculator.CalculatorEngine;
 namespace Calculator.OperationPlugins
 {
     [Operator("sqrt")]
-    class SquareRootOperation : Operation
+    public class SquareRootOperation : Operation
     {
-        public override int GetNumberOfOperands()
+        public override int NumberOfOperands()
             => 1;
 
-        protected override decimal GetResultForValidatedOperands(IList<decimal> operands)
-            => (decimal) System.Math.Sqrt((double) operands.Single());
+        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
+        {
+            return isOperandValid() ?
+                (decimal) System.Math.Sqrt(operandAsDouble()) :
+                throw new System.ArgumentOutOfRangeException();
+
+            //Local functions
+            bool isOperandValid()
+                => !double.IsNaN(System.Math.Sqrt(operandAsDouble()));
+            double operandAsDouble()
+                => (double) operands.Single();
+        }
     }
 }

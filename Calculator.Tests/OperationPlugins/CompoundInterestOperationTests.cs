@@ -10,25 +10,27 @@ using Calculator.OperationPlugins;
 
 namespace Calculator.Tests.OperationPlugins
 {
-    public class AdditionOperationTests : OperationTests
+    public class CompoundInterestOperationTests : OperationTests
     {
 
         [Fact]
-        public void GetNumberOfOperands_Always_ReturnsTwo()
+        public void GetNumberOfOperands_Always_ReturnsThree()
         {
             //Assert
-            numberOfOperands().Should().Be(2);
+            numberOfOperands().Should().Be(3);
 
             //Local functions
             int numberOfOperands()
-                => new AdditionOperation().NumberOfOperands();
+                => new CompoundInterestOperation().NumberOfOperands();
         }
 
         [Theory]
-        [InlineData(2.5, 1, 1.5)]
-        [InlineData(1, 1, 0)]
-        [InlineData(-1, 1, -2)]
-        [InlineData(0, 0, 0)]
+        [InlineData(1.21, 1, .1, 2)]
+        [InlineData(0, 0, .1, 2)]
+        [InlineData(1.234, 1.234, .56, 0)]
+        [InlineData(1.234, 1.234, 0, 56)]
+        [InlineData(1, 1.21, .1, -2)]        
+        [InlineData(.9, 1, -.1, 1)]
         public void GetResultForOperands_Operands_Results(decimal expectedResult, params object[] operands)
         {
             //Assert
@@ -36,7 +38,7 @@ namespace Calculator.Tests.OperationPlugins
 
             //Local functions
             decimal resultForOperands()
-                => new AdditionOperation().ResultForOperands(DecimalOperands(operands));
+                => new CompoundInterestOperation().ResultForOperands(DecimalOperands(operands));
         }
     }
 }

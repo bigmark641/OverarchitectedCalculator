@@ -22,7 +22,7 @@ namespace Calculator.Tests.CalculatorEngine
             CalculatorStateFactoryMock = new Mock<ICalculatorStateFactory>();
 
             //Setup state factory
-            CalculatorStateFactoryMock.Setup(x => x.GetCalculatorState(It.IsAny<IImmutableList<decimal>>(), It.IsAny<IOperation>())).Returns(new Func<IImmutableList<decimal>, IOperation, ICalculatorState>(
+            CalculatorStateFactoryMock.Setup(x => x.NewCalculatorState(It.IsAny<IImmutableList<decimal>>(), It.IsAny<IOperation>())).Returns(new Func<IImmutableList<decimal>, IOperation, ICalculatorState>(
                 (values, operation) =>
                 {
                     var calculatorStateMock = new Mock<ICalculatorState>();
@@ -38,19 +38,19 @@ namespace Calculator.Tests.CalculatorEngine
         //////////////////////////////////
 
         [Theory]  //Format: (ExpectedExceptionType, ExpectedResult, Inputs[])
-        [InlineData(null, 1, "1")] //Single value
-        [InlineData(null, 1, "1", "+")] //Value and operation
-        [InlineData(null, 2, "1", "+", "2")] //Last value
-        [InlineData(null, 3, "1", "+", "2", "=")] //Equals
-        [InlineData(null, 3, "1", "+", "2", "+")] //Previous operation result
-        [InlineData(null, 6, "1", "+", "2", "+", "3", "=")] //Chained operations      
-        [InlineData(null, 20, "2", "+", "3", "*", "4", "=")] //Chained operations ordered    
-        [InlineData(null, 10, "2", "*", "3", "+", "4", "=")] //Chained operations order reversed
-        [InlineData(null, -1, "1", "+", "-2", "=")] //Negatives
-        [InlineData(null, 4, "2", "^2")] //Unary operation
-        [InlineData(null, 7, "2", "^2", "+", "3", "=")] //Unary chained operation
-        [InlineData(null, 9, "1", "+", "3", "^2")] //Unary later operation
-        [InlineData(null, 11, "2", "+", "3", "^2", "=")] //Unary chained operation
+        [InlineData(null, 1,    "1")] //Single value
+        [InlineData(null, 1,    "1", "+")] //Value and operation
+        [InlineData(null, 2,    "1", "+", "2")] //Last value
+        [InlineData(null, 3,    "1", "+", "2", "=")] //Equals
+        [InlineData(null, 3,    "1", "+", "2", "+")] //Previous operation result
+        [InlineData(null, 6,    "1", "+", "2", "+", "3", "=")] //Chained operations      
+        [InlineData(null, 20,   "2", "+", "3", "*", "4", "=")] //Chained operations ordered    
+        [InlineData(null, 10,   "2", "*", "3", "+", "4", "=")] //Chained operations order reversed
+        [InlineData(null, -1,   "1", "+", "-2", "=")] //Negatives
+        [InlineData(null, 4,    "2", "^2")] //Unary operation
+        [InlineData(null, 7,    "2", "^2", "+", "3", "=")] //Unary chained operation
+        [InlineData(null, 9,    "1", "+", "3", "^2")] //Unary later operation
+        [InlineData(null, 11,   "2", "+", "3", "^2", "=")] //Unary chained operation
         [InlineData(null, 12.1, "10", "CompoundInterest", ".1", "2", "=")] //Ternary operation
         [InlineData(null, 3.14, "PI")] //Nullary operation
         [InlineData(null, 4.14, "PI", "+", "1", "=")] //Nulary chained operation
@@ -75,7 +75,7 @@ namespace Calculator.Tests.CalculatorEngine
         public void TestCalculatorInputResults(Type expectedExceptionType, decimal expectedResult, params string[] inputs)
         {
             //Arrange
-            var calculator = GetCalculatorWithSubmissions();
+            var calculator = CalculatorWithSubmissions();
             Exception thrownException = null;
             decimal lastResult = 0;
 
@@ -101,7 +101,7 @@ namespace Calculator.Tests.CalculatorEngine
                 lastResult.Should().Be(expectedResult);
             }
 
-            //Result of submitted input
+            //Local functions
             decimal resultOfSubmittedInput(string input)
                 => input.Equals("+") ? calculator.SubmitOperationInputAndGetResult(additionOperation())
                     : input.Equals("*") ? calculator.SubmitOperationInputAndGetResult(multiplicationOperation())
@@ -110,25 +110,24 @@ namespace Calculator.Tests.CalculatorEngine
                     : input.Equals("CompoundInterest") ? calculator.SubmitOperationInputAndGetResult(compoundInterestOperation())
                     : input.Equals("=") ? calculator.SubmitEqualsRequestAndGetResult()
                     : calculator.SubmitValueInputAndGetResult(decimal.Parse(input));
-            //Mocked operations
             IOperation additionOperation()
-                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                => Operation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
                     => operands.ToList()[0] + operands.ToList()[1]));
             IOperation multiplicationOperation()
-                => GetOperation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                => Operation(numberOfOperands: 2, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
                     => operands.ToList()[0] * operands.ToList()[1]));
             IOperation squareOperation()
-                => GetOperation(numberOfOperands: 1, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                => Operation(numberOfOperands: 1, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
                     => operands.ToList()[0] * operands.ToList()[0]));
             IOperation piOperation()
-                => GetOperation(numberOfOperands: 0, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
+                => Operation(numberOfOperands: 0, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands) 
                     => 3.14M));
             IOperation compoundInterestOperation()
-                => GetOperation(numberOfOperands: 3, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands)
+                => Operation(numberOfOperands: 3, resultFunction: new Func<IEnumerable<decimal>, decimal>((operands)
                     => operands.ToList()[0] * (decimal)Math.Pow((double)(1 + operands.ToList()[1]), (double)operands.ToList()[2])));
         }
 
-        private Calculator.CalculatorEngine.Implementations.Calculator GetCalculatorWithSubmissions(params object[] inputs)
+        private Calculator.CalculatorEngine.Implementations.Calculator CalculatorWithSubmissions(params object[] inputs)
         {
             //Get initial calculator
             var calculator = new Calculator.CalculatorEngine.Implementations.Calculator(CalculatorStateFactoryMock.Object);
@@ -148,16 +147,19 @@ namespace Calculator.Tests.CalculatorEngine
             return calculator;
         }
 
-        private IOperation GetOperation(int numberOfOperands, decimal operationResult = 0, Func<IEnumerable<decimal>, decimal> resultFunction = null)
+        private IOperation Operation(int numberOfOperands, decimal operationResult = 0, Func<IEnumerable<decimal>, decimal> resultFunction = null)
         {
+            //Setup number of operands
             var operationMock = new Mock<IOperation>();
-            operationMock.Setup(x => x.GetNumberOfOperands()).Returns(numberOfOperands);
+            operationMock.Setup(x => x.NumberOfOperands()).Returns(numberOfOperands);
             
+            //Setup result for operands
             if (resultFunction != null)
-                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IEnumerable<decimal>>())).Returns(resultFunction);
+                operationMock.Setup(x => x.ResultForOperands(It.IsAny<IEnumerable<decimal>>())).Returns(resultFunction);
             else
-                operationMock.Setup(x => x.GetResultForOperands(It.IsAny<IList<decimal>>())).Returns(operationResult);
+                operationMock.Setup(x => x.ResultForOperands(It.IsAny<IList<decimal>>())).Returns(operationResult);
 
+            //Return operation
             var operation = operationMock.Object;
             return operation;
         }
@@ -173,9 +175,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultOnInitialState().Should().Be(input());
 
-            //Result on initial state
+            //Local functions
             decimal resultOnInitialState() 
-                => GetCalculatorWithSubmissions().SubmitValueInputAndGetResult(input());
+                => CalculatorWithSubmissions().SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
         }
@@ -186,9 +188,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultAfterValueInput());
 
-            //Result on initial state
+            //Local functions
             decimal resultAfterValueInput() 
-                => GetCalculatorWithSubmissions(1).SubmitValueInputAndGetResult(input());
+                => CalculatorWithSubmissions(1).SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
         }
@@ -199,9 +201,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultAfterNullaryOperation());
 
-            //Result on initial state
+            //Local functions
             decimal resultAfterNullaryOperation() 
-                => GetCalculatorWithSubmissions(GetOperation(0)).SubmitValueInputAndGetResult(input());
+                => CalculatorWithSubmissions(Operation(0)).SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
         }
@@ -212,9 +214,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultAfterIncompleteOperation().Should().Be(input());
 
-            //Result on initial state
+            //Local functions
             decimal resultAfterIncompleteOperation() 
-                => GetCalculatorWithSubmissions(1, GetOperation(2)).SubmitValueInputAndGetResult(input());
+                => CalculatorWithSubmissions(1, Operation(2)).SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
         }
@@ -225,9 +227,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultAfterCompleteOperation());
 
-            //Result on initial state
+            //Local functions
             decimal resultAfterCompleteOperation()
-                => GetCalculatorWithSubmissions(1, GetOperation(2), 1).SubmitValueInputAndGetResult(input());
+                => CalculatorWithSubmissions(1, Operation(2), 1).SubmitValueInputAndGetResult(input());
             decimal input()
                 => 123;            
         }
@@ -238,11 +240,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultOfSubmittingNullaryOperationOnInitialState().Should().Be(operationResult());
 
-            //Result of zero operand operation on initial state
+            //Local functions
             decimal resultOfSubmittingNullaryOperationOnInitialState() 
-                => GetCalculatorWithSubmissions().SubmitOperationInputAndGetResult(operation());
+                => CalculatorWithSubmissions().SubmitOperationInputAndGetResult(operation());
             IOperation operation()
-                => GetOperation(operandCount(), operationResult());
+                => Operation(operandCount(), operationResult());
             int operandCount()
                 => 0;
             decimal operationResult()
@@ -255,11 +257,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultOfSubmittingOperationWithOperandsOnInitialState());
 
-            //Result operation with operands on initial state
+            //Local functions
             decimal resultOfSubmittingOperationWithOperandsOnInitialState()
-                => GetCalculatorWithSubmissions().SubmitOperationInputAndGetResult(operation());
+                => CalculatorWithSubmissions().SubmitOperationInputAndGetResult(operation());
             IOperation operation()
-                => GetOperation(operandCount());
+                => Operation(operandCount());
             int operandCount()
                 => 1;
         }
@@ -270,11 +272,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultOfOperationWithSingleOperandAfterValueInput().Should().Be(operationResult());
 
-            //result of operation with single operand after value input
+            //Local functions
             decimal resultOfOperationWithSingleOperandAfterValueInput()
-                => GetCalculatorWithSubmissions(1).SubmitOperationInputAndGetResult(operationWithSingleOperand());
+                => CalculatorWithSubmissions(1).SubmitOperationInputAndGetResult(operationWithSingleOperand());
             IOperation operationWithSingleOperand()
-                => GetOperation(1, operationResult());
+                => Operation(1, operationResult());
             decimal operationResult()
                 => 123;
         }
@@ -285,13 +287,13 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultOfMultiOperandOperationAfterValueInput().Should().Be(originalValue());
 
-            //result of operation with single operand after value input
+            //Local functions
             decimal resultOfMultiOperandOperationAfterValueInput()
-                => GetCalculatorWithSubmissions(originalValue()).SubmitOperationInputAndGetResult(multiOperandOperation());
+                => CalculatorWithSubmissions(originalValue()).SubmitOperationInputAndGetResult(multiOperandOperation());
             decimal originalValue()
                 => 456;
             IOperation multiOperandOperation()
-                => GetOperation(2, operationResult());
+                => Operation(2, operationResult());
             decimal operationResult()
                 => 123;
         }
@@ -302,11 +304,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultOfOperationAfterIncompleteOperation());
 
-            //result of operation with single operand after value input
+            //Local functions
             decimal resultOfOperationAfterIncompleteOperation()
-                => GetCalculatorWithSubmissions(1, GetOperation(2)).SubmitOperationInputAndGetResult(multiOperandOperation());
+                => CalculatorWithSubmissions(1, Operation(2)).SubmitOperationInputAndGetResult(multiOperandOperation());
             IOperation multiOperandOperation()
-                => GetOperation(2);
+                => Operation(2);
         }
 
         [Fact]
@@ -315,9 +317,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultOnInitialState());
 
-            //Result on initial state
+            //Local functions
             decimal resultOnInitialState()
-                => GetCalculatorWithSubmissions().SubmitEqualsRequestAndGetResult();
+                => CalculatorWithSubmissions().SubmitEqualsRequestAndGetResult();
         }
 
         [Fact]
@@ -326,9 +328,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultAfterValueInput());
 
-            //Result
+            //Local functions
             decimal resultAfterValueInput()
-                => GetCalculatorWithSubmissions(0).SubmitEqualsRequestAndGetResult();
+                => CalculatorWithSubmissions(0).SubmitEqualsRequestAndGetResult();
         }
 
         [Fact]
@@ -337,9 +339,9 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             Assert.Throws<InvalidOperationException>(() => resultofEqualsAfterIncompleteOperation());
 
-            //Result
+            //Local functions
             decimal resultofEqualsAfterIncompleteOperation()
-                => GetCalculatorWithSubmissions(1, GetOperation(2)).SubmitEqualsRequestAndGetResult();
+                => CalculatorWithSubmissions(1, Operation(2)).SubmitEqualsRequestAndGetResult();
         }
 
         [Fact]
@@ -348,11 +350,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             resultofEqualsAfterIncompleteOperation().Should().Be(operationResult());
 
-            //Result
+            //Local functions
             decimal resultofEqualsAfterIncompleteOperation()
-                => GetCalculatorWithSubmissions(1, binaryOperation(), 2).SubmitEqualsRequestAndGetResult();
+                => CalculatorWithSubmissions(1, binaryOperation(), 2).SubmitEqualsRequestAndGetResult();
             IOperation binaryOperation()
-                => GetOperation(2, operationResult());
+                => Operation(2, operationResult());
             decimal operationResult()
                 => 123;
         }

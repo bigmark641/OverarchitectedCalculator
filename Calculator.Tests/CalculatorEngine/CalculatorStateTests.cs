@@ -17,13 +17,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             constructedCalculatorStateValues().Should().BeEquivalentTo(valuesForConstructor());
 
-            //Constructed calculator state values
+            //Local functions
             IImmutableList<decimal> constructedCalculatorStateValues()
                 => constructedCalculatorState().Values;
             CalculatorState constructedCalculatorState() 
                 => new CalculatorState(valuesForConstructor(), null);
-
-            //Values for constructor
             IImmutableList<decimal> valuesForConstructor()
                 => ImmutableList<decimal>.Empty.Add(123);
         }
@@ -37,7 +35,7 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             constructedCalculatorStateOperation().Should().BeSameAs(operationForConstructor);
             
-            //Constructed calculator state operation
+            //Local functions
             IOperation constructedCalculatorStateOperation()
                 => constructedCalculatorState().ActiveOperation;
             CalculatorState constructedCalculatorState() 

@@ -36,26 +36,18 @@ namespace Calculator
             //Get concrete TextCalculator with injected dependencies
             return new TextCalculator.Implementations.TextCalculator(calculator(), operationFactory());
 
-            //Get concrete calculator
+            //Local functions
             ICalculator calculator() => new CalculatorEngine.Implementations.Calculator(calculatorStateFactory());
             ICalculatorStateFactory calculatorStateFactory() => new CalculatorStateFactory();
-
-            //Get concrete operation factory
             IOperationFactory operationFactory() => new DelegateOperationFactory(operationForOperatorSymbol);
             IOperation operationForOperatorSymbol(string operatorSymbol) => (IOperation)defaultConstructorForOperatorSymbol(operatorSymbol).Invoke(new object[]{});  
             ConstructorInfo defaultConstructorForOperatorSymbol(string operatorSymbol) => defaultConstructorsByOperatorSymbol(operatorSymbol).Single();          
             IEnumerable<ConstructorInfo> defaultConstructorsByOperatorSymbol(string operatorSymbol) => typesByOperatorSymbol(operatorSymbol).Select(defaultConstructorForType);
-            
-            //Get default constructor for type
             ConstructorInfo defaultConstructorForType(Type type) => type.GetConstructor(Type.EmptyTypes);
-
-            //Get types by operator symbol
             IEnumerable<Type> typesByOperatorSymbol(string operatorSymbol) => typesAssignableToIOperation().Where(x => typeHasOperatorSymbol(x, operatorSymbol));
             IEnumerable<Type> typesAssignableToIOperation() => types().Where(x => typeof(IOperation).IsAssignableFrom(x));
             IEnumerable<Type> types() => assemblies().SelectMany(x => x.GetTypes());
             Assembly[] assemblies() => AppDomain.CurrentDomain.GetAssemblies();  
-
-            //Type has operator symbol 
             bool typeHasOperatorSymbol(Type type, string operatorSymbol) => operatorAttributeForType(type) != null
                 ? operatorAttributeForType(type).Symbol.Equals(operatorSymbol)
                 : false;
@@ -67,6 +59,7 @@ namespace Calculator
             //Print input
             PrintInput(input);
             Delay();
+            
             //Print result
             PrintResult(result());
             string result() => TextCalculator.SubmitInputAndGetResult(input);

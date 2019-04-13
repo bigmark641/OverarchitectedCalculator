@@ -10,7 +10,7 @@ using Calculator.OperationPlugins;
 
 namespace Calculator.Tests.OperationPlugins
 {
-    public class AdditionOperationTests : OperationTests
+    public class SubtractionOperationTests : OperationTests
     {
 
         [Fact]
@@ -21,13 +21,13 @@ namespace Calculator.Tests.OperationPlugins
 
             //Local functions
             int numberOfOperands()
-                => new AdditionOperation().NumberOfOperands();
+                => new SubtractionOperation().NumberOfOperands();
         }
 
         [Theory]
-        [InlineData(2.5, 1, 1.5)]
+        [InlineData(.5, 1.5, 1)]
         [InlineData(1, 1, 0)]
-        [InlineData(-1, 1, -2)]
+        [InlineData(3, 1, -2)]
         [InlineData(0, 0, 0)]
         public void GetResultForOperands_Operands_Results(decimal expectedResult, params object[] operands)
         {
@@ -36,7 +36,7 @@ namespace Calculator.Tests.OperationPlugins
 
             //Local functions
             decimal resultForOperands()
-                => new AdditionOperation().ResultForOperands(DecimalOperands(operands));
+                => new SubtractionOperation().ResultForOperands(DecimalOperands(operands));
         }
     }
 }

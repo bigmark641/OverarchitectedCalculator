@@ -7,13 +7,13 @@ namespace Calculator.OperationPlugins
 {
     public abstract class Operation : IOperation
     {
-        public abstract int GetNumberOfOperands();
+        public abstract int NumberOfOperands();
 
-        public decimal GetResultForOperands(IEnumerable<decimal> operands)
-            => operands.Count() == GetNumberOfOperands()
-                ? GetResultForValidatedOperands(operands.ToList())
+        public decimal ResultForOperands(IEnumerable<decimal> operands)
+            => operands.Count() == NumberOfOperands()
+                ? ResultForValidatedOperands(operands.ToList())
                 : throw new ArgumentException();
 
-        protected abstract decimal GetResultForValidatedOperands(IList<decimal> operands);
+        protected abstract decimal ResultForValidatedOperands(IList<decimal> operands);
     }
 }

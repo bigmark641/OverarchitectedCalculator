@@ -17,18 +17,20 @@ namespace Calculator.TextCalculator.Implementations
         public string SubmitInputAndGetResult(string input)
         {
             return decimalResult().ToString();
+
+            //Local functions 
             decimal decimalResult() => 
                 IsNumber(input) ? Calculator.SubmitValueInputAndGetResult(numberInput())
                 : input.Equals("=") ? Calculator.SubmitEqualsRequestAndGetResult()
                     : Calculator.SubmitOperationInputAndGetResult(operationInput());
-            decimal numberInput() => GetNumber(input);
+            decimal numberInput() => AsNumber(input);
             IOperation operationInput() => OperationFactory.GetOperationByOperatorSymbol(input);
         }
 
         private bool IsNumber(string stringToTest)
             => decimal.TryParse(stringToTest, out var result);
 
-        private decimal GetNumber(string stringToConvert)
+        private decimal AsNumber(string stringToConvert)
             => decimal.Parse(stringToConvert);
     }
 }

@@ -5,7 +5,7 @@ namespace Calculator.CalculatorEngine
 {
     public interface IOperation
     {
-        int GetNumberOfOperands();
-        decimal GetResultForOperands(IEnumerable<decimal> operands);
+        int NumberOfOperands();
+        decimal ResultForOperands(IEnumerable<decimal> operands);
     }
 }

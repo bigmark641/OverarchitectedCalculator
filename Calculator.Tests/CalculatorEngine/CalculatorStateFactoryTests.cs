@@ -10,7 +10,7 @@ namespace Calculator.Tests.CalculatorEngine
 {
     public class CalculatorStateFactoryTests
     {
-        CalculatorStateFactory GetCalculatorStateFactory()
+        CalculatorStateFactory CalculatorStateFactory()
                 => new CalculatorStateFactory();
 
         [Fact]
@@ -19,13 +19,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             constructedCalculatorStateValues().Should().BeEquivalentTo(valuesForConstructor());
 
-            //Constructed calculator state values
+            //Local functions
             IImmutableList<decimal> constructedCalculatorStateValues()
                 => constructedCalculatorState().Values;
             ICalculatorState constructedCalculatorState()
-                => GetCalculatorStateFactory().GetCalculatorState(valuesForConstructor(), null);
-            
-            //Values for constructor
+                => CalculatorStateFactory().NewCalculatorState(valuesForConstructor(), null);
             IImmutableList<decimal> valuesForConstructor()
                 => ImmutableList<decimal>.Empty.Add(123);
         }
@@ -39,11 +37,11 @@ namespace Calculator.Tests.CalculatorEngine
             //Assert
             constructedCalculatorStateOperation().Should().BeSameAs(operationForConstructor);
 
-            //Constructed calculator state operation
+            //Local functions
             IOperation constructedCalculatorStateOperation()
                 => constructedCalculatorState().ActiveOperation;
             ICalculatorState constructedCalculatorState()
-                => GetCalculatorStateFactory().GetCalculatorState(null, operationForConstructor);
+                => CalculatorStateFactory().NewCalculatorState(null, operationForConstructor);
         }
     }
 }

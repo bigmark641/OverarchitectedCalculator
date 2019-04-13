@@ -5,6 +5,6 @@ namespace Calculator.CalculatorEngine
 {
     public interface ICalculatorStateFactory
     {
-        ICalculatorState GetCalculatorState(IImmutableList<decimal> values, IOperation operation);
+        ICalculatorState NewCalculatorState(IImmutableList<decimal> values, IOperation operation);
     }
 }
