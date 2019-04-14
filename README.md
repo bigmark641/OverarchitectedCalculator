@@ -27,11 +27,11 @@ I spent most of my time focusing on the core business logic classes (Calculator 
 
 ```C#
 Calculator
- - CalculatorEngine //This is the main calculator logic that evaluates operations on decimals
- - OperationPlugins //These are the different operations that the calculator can perform (e.g. addition, subtraction, square root...)
- - TextCalculator //This is a string interface to the calculator
- - Program.cs //This is a runner harness that injects all the concrete implementions or factories and executes a few example operations
+  -  CalculatorEngine //This is the main calculator logic that evaluates operations on decimals
+  -  OperationPlugins //These are the different operations that the calculator can perform (e.g. addition, subtraction, square root...)
+  -  TextCalculator //This is a string interface to the calculator
+  -  Program.cs //This is a runner harness that injects all the concrete implementions or factories and executes a few example operations
 Calculator.Tests
- - CalculatorEngine //These are unit tests of the CalculatorEngine
- - OperationPlugins //These are unit teests of the OperationPlugins
+  -  CalculatorEngine //These are unit tests of the CalculatorEngine
+  -  OperationPlugins //These are unit teests of the OperationPlugins
 ```
