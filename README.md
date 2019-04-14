@@ -33,5 +33,5 @@ Calculator
   -  Program.cs //This is a runner harness that injects all the concrete implementions or factories and executes a few example operations
 Calculator.Tests
   -  CalculatorEngine //These are unit tests of the CalculatorEngine
-  -  OperationPlugins //These are unit teests of the OperationPlugins
+  -  OperationPlugins //These are unit tests of the OperationPlugins
 ```
