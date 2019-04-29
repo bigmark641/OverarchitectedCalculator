@@ -7,6 +7,7 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Calculator.OperationPlugins;
+using Calculator.Utilities;
 
 namespace Calculator.Tests.OperationPlugins
 {
@@ -32,10 +33,10 @@ namespace Calculator.Tests.OperationPlugins
         public void GetResultForOperands_Operands_Results(decimal expectedResult, params object[] operands)
         {
             //Assert
-            resultForOperands().Should().Be(expectedResult);
+            resultForOperands().Should().Be(Validated(expectedResult));
 
             //Local functions
-            decimal resultForOperands()
+            Validated<decimal> resultForOperands()
                 => new SquareOperation().ResultForOperands(DecimalOperands(operands));
         }
     }

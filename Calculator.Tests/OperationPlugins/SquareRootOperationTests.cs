@@ -7,6 +7,7 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Calculator.OperationPlugins;
+using Calculator.Utilities;
 
 namespace Calculator.Tests.OperationPlugins
 {
@@ -31,10 +32,10 @@ namespace Calculator.Tests.OperationPlugins
         public void GetResultForOperands_Operands_Results(decimal expectedResult, params object[] operands)
         {
             //Assert
-            resultForOperands().Should().Be(expectedResult);
+            resultForOperands().Should().Be(Validated(expectedResult));
 
             //Local functions
-            decimal resultForOperands()
+            Validated<decimal> resultForOperands()
                 => new SquareRootOperation().ResultForOperands(DecimalOperands(operands));
         }
 
@@ -42,13 +43,15 @@ namespace Calculator.Tests.OperationPlugins
         public void GetResultForOperands_NegativeOperand_ThrowsArgumentOutOfRangeException()
         {
             //Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => resultForNegativeOperand());
+            resultForNegativeOperand().Should().Be(expectedErrorForNegativeOperand());
 
             //Local functions
-            decimal resultForNegativeOperand()
+            Validated<decimal> resultForNegativeOperand()
                 => new SquareRootOperation().ResultForOperands(DecimalOperands(negativeOperand()));
             IEnumerable<object> negativeOperand()
                 => new List<object> { -1 };
+            Validated<decimal> expectedErrorForNegativeOperand()
+                => new StringError("Only positive numbers can be square rooted.");
         }
     }
 }

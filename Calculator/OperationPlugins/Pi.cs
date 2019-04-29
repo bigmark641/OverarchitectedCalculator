@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Calculator.CalculatorEngine;
+using Calculator.Utilities;
 
 namespace Calculator.OperationPlugins
 {
@@ -11,7 +12,7 @@ namespace Calculator.OperationPlugins
         public override int NumberOfOperands()
             => 0;
 
-        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
-            => (decimal)Math.PI;
+        protected override Validated<decimal> ResultForValidatedOperands(IList<decimal> operands)
+            => new Validated<decimal>((decimal)Math.PI);
     }
 }

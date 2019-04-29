@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Calculator.CalculatorEngine;
+using Calculator.Utilities;
 
 namespace Calculator.OperationPlugins
 {
@@ -10,7 +11,7 @@ namespace Calculator.OperationPlugins
         public override int NumberOfOperands()
             => 2;
 
-        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
-            => operands[0] + operands[1];
+        protected override Validated<decimal> ResultForValidatedOperands(IList<decimal> operands)
+            => new Validated<decimal>(operands[0] + operands[1]);
     }
 }

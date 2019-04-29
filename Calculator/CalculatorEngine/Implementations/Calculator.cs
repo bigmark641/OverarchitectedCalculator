@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Calculator.CalculatorEngine;
+using Calculator.Utilities;
 
 namespace Calculator.CalculatorEngine.Implementations
 {
@@ -23,29 +24,41 @@ namespace Calculator.CalculatorEngine.Implementations
             CurrentState = CalculatorStateFactory.NewCalculatorState(initialValues(), initialOperation());
 
             //Local functions 
-            IImmutableList<decimal> initialValues() => ImmutableList<decimal>.Empty;
-            IOperation initialOperation() => null;
+            IImmutableList<decimal> initialValues() 
+                => ImmutableList<decimal>.Empty;
+            IOperation initialOperation() 
+                => null;
         }
 
-        public decimal SubmitValueInputAndGetResult(decimal valueInput)
+        public Validated<decimal> SubmitValueInputAndGetResult(decimal valueInput)
         {
-            //Update mutable state for new value (statement with side effects)
-            CurrentState = isValueInputValidForCurrentState()
-                ? CalculatorStateFactory.NewCalculatorState(valuesAfterNewValueInput(), operationAfterNewValueInput())
-                : throw new InvalidOperationException();
-            
-            //Return latest value
-            return LatestValue();
+            //Validate, submit input, and get result
+            return validatedValueInput(valueInput)
+                .Map(submitAndGetResult);
 
             //Local functions
-            bool isValueInputValidForCurrentState() => !HasReceivedValues() || hasIncompleteOperation();
-            bool hasIncompleteOperation() => HasActiveOperation() && !IsActiveOperationComplete();
-            IImmutableList<decimal> valuesAfterNewValueInput() => CurrentState.Values.Add(valueInput);
-            IOperation operationAfterNewValueInput() => CurrentState.ActiveOperation;
+            Validated<decimal> validatedValueInput(decimal input)
+                => IsAdditionalValueValidOnCurrentState()
+                    ? new Validated<decimal>(input)
+                    : new StringError("Value is not currently allowed.");
+            decimal submitAndGetResult(decimal input) 
+                => LatestValueOfState(CurrentState = stateAfter(input));
+            ICalculatorState stateAfter(decimal input) 
+                => CalculatorStateFactory.NewCalculatorState(CurrentValuesIncluding(input), activeOperation());
+            IImmutableList<decimal> CurrentValuesIncluding(decimal input) 
+                => CurrentState.Values.Add(input);
+            IOperation activeOperation()
+                => CurrentState.ActiveOperation;
         }
+
+        private bool IsAdditionalValueValidOnCurrentState()
+            => !HasReceivedValues() || HasIncompleteOperation();
 
         private bool HasReceivedValues() 
             => CurrentState.Values.Any();
+
+        bool HasIncompleteOperation() 
+            => HasActiveOperation() && !IsActiveOperationComplete();
 
         private bool HasActiveOperation() 
             => CurrentState.ActiveOperation != null;
@@ -53,77 +66,97 @@ namespace Calculator.CalculatorEngine.Implementations
         private bool IsActiveOperationComplete()
             => CurrentState.Values.Count() == CurrentState.ActiveOperation.NumberOfOperands();
 
-        public decimal SubmitOperationInputAndGetResult(IOperation newOperation)
+        public Validated<decimal> SubmitOperationInputAndGetResult(IOperation operationInput)
         {
-            //Update mutable state for new operation (statement with side effects)
-            CurrentState = isOperationInputValidForCurrentState()
-                ?   stateAfterNewOperationInput()
-                : throw new InvalidOperationException();
-
-            //Return latest value
-            return LatestValue();         
+            //Validate, submit input, and get result
+            return validatedOperationInput(operationInput)
+                .Bind(submitAndGetResult);
             
             //Local functions
-            bool isOperationInputValidForCurrentState()
-                => FunctionForNewOperation(newOperation,
-                    ifNoOperands: () 
-                        => !HasReceivedValues() || HasActiveOperation(),
-                    ifSingleOperand: () 
-                        => HasReceivedValues(),
-                    ifMultipleOperandsWithoutExistingOperation: () 
-                        => CurrentState.Values.Count() == 1,
-                    ifMultipleOperandsWithExistingOperation: () 
-                        => CurrentState.Values.Count() == CurrentState.ActiveOperation.NumberOfOperands());
-            ICalculatorState stateAfterNewOperationInput()
-                => CalculatorStateFactory.NewCalculatorState(valuesAfterNewOperationInput(), operationAfterNewOperationInput());
-            IImmutableList<decimal> valuesAfterNewOperationInput()
-                => FunctionForNewOperation(newOperation,
+            Validated<IOperation> validatedOperationInput(IOperation input)
+                => isValidOnCurrentState(input)
+                    ? new Validated<IOperation>(input)
+                    : new StringError("Operation is not currently allowed.");
+            bool isValidOnCurrentState(IOperation input)
+                => FunctionForNewOperation(input,
                     ifNoOperands: ()
-                        => CurrentValuesPlusNewValue(newOperation.ResultForOperands(ImmutableList<decimal>.Empty)),
+                        => IsAdditionalValueValidOnCurrentState(),
+                    ifSingleOperand: ()
+                        => HasReceivedValues(),
+                    ifMultipleOperandsWithoutActiveOperation: () 
+                        => HasReceivedValues(),
+                    ifMultipleOperandsWithActiveOperation: () 
+                        => IsActiveOperationComplete());
+            Validated<decimal> submitAndGetResult(IOperation input)
+                => validatedEvaluationResult(input)
+                    .Map(x => saveAndGetResult(input, x));
+            Validated<decimal> validatedEvaluationResult(IOperation input)
+                => FunctionForNewOperation(input,
+                    ifNoOperands: ()
+                        => input.ResultForOperands(ImmutableList<decimal>.Empty),
+                    ifSingleOperand: ()
+                        => input.ResultForOperands(ListWithSingleValue(CurrentState.Values.Last())),
+                    ifMultipleOperandsWithoutActiveOperation: ()
+                        => new Validated<decimal>(null),
+                    ifMultipleOperandsWithActiveOperation: ()
+                        => CurrentState.ActiveOperation.ResultForOperands(CurrentState.Values));
+            decimal saveAndGetResult(IOperation evaluatedOperation, decimal resultingValue)
+                => LatestValueOfState(CurrentState = resultingState(evaluatedOperation, resultingValue));
+            ICalculatorState resultingState(IOperation evaluatedOperation, decimal resultingValue)
+                => CalculatorStateFactory.NewCalculatorState(resultingValues(evaluatedOperation, resultingValue), newOperation(evaluatedOperation));
+            IImmutableList<decimal> resultingValues(IOperation evaluatedOperation, decimal resultingValue)
+                => FunctionForNewOperation(evaluatedOperation,
+                    ifNoOperands: ()
+                        => CurrentValuesPlusNewValue(resultingValue),
                     ifSingleOperand: () 
-                        => CurrentValuesWithLastReplaced(newOperation.ResultForOperands(ListWithSingleValue(CurrentState.Values.Last()))),
-                    ifMultipleOperandsWithoutExistingOperation: () 
+                        => CurrentValuesWithLastReplaced(resultingValue),
+                    ifMultipleOperandsWithoutActiveOperation: () 
                         => CurrentState.Values,
-                    ifMultipleOperandsWithExistingOperation: () 
-                        => ListWithSingleValue(CurrentState.ActiveOperation.ResultForOperands(CurrentState.Values)));
-            IOperation operationAfterNewOperationInput()
-                => FunctionForNewOperation(newOperation,
+                    ifMultipleOperandsWithActiveOperation: () 
+                        => ListWithSingleValue(resultingValue));
+            IOperation newOperation(IOperation evaluatedOperation)
+                => FunctionForNewOperation(evaluatedOperation,
                     ifNoOperands: () 
                         => CurrentState.ActiveOperation,
                     ifSingleOperand: () 
                         => CurrentState.ActiveOperation,
-                    ifMultipleOperandsWithoutExistingOperation: () 
-                        => newOperation,
-                    ifMultipleOperandsWithExistingOperation: () 
-                        => newOperation);  
+                    ifMultipleOperandsWithoutActiveOperation: () 
+                        => evaluatedOperation,
+                    ifMultipleOperandsWithActiveOperation: () 
+                        => evaluatedOperation);  
         }
 
-        private T FunctionForNewOperation<T>(IOperation newOperation, Func<T> ifNoOperands,Func<T> ifSingleOperand, Func<T> ifMultipleOperandsWithoutExistingOperation, Func<T> ifMultipleOperandsWithExistingOperation)
+        private T FunctionForNewOperation<T>(IOperation newOperation, Func<T> ifNoOperands,Func<T> ifSingleOperand, Func<T> ifMultipleOperandsWithoutActiveOperation, Func<T> ifMultipleOperandsWithActiveOperation)
             =>  newOperation.NumberOfOperands() == 0
                     ? ifNoOperands()
                 : newOperation.NumberOfOperands() == 1
                     ? ifSingleOperand()
                 : CurrentState.ActiveOperation == null
-                    ? ifMultipleOperandsWithoutExistingOperation()
-                    : ifMultipleOperandsWithExistingOperation();
+                    ? ifMultipleOperandsWithoutActiveOperation()
+                    : ifMultipleOperandsWithActiveOperation();
 
-        public decimal SubmitEqualsRequestAndGetResult()
+        public Validated<decimal> SubmitEqualsRequestAndGetResult()
         {
-            //Update mutable state for equals request (statement with side effects)
-            CurrentState = isEqualsRequestValidForCurrentState()
-                    ? stateAfterEqualsRequestEvaluation()
-                    : throw new InvalidOperationException();
-            
-            //Return latest value
-            return LatestValue();    
+            //Validate, submit, and get result
+            return validatedEqualsRequest()
+                .Bind(submitEqualsRequestAndGetResult);
 
             //Local functions
+            Validated validatedEqualsRequest()
+                => isEqualsRequestValidForCurrentState()
+                    ? new Validated()
+                    : new StringError("Equals request is not currently allowed.");
             bool isEqualsRequestValidForCurrentState()
-                => HasActiveOperation() && IsActiveOperationComplete();       
-            ICalculatorState stateAfterEqualsRequestEvaluation()
-                => CalculatorStateFactory.NewCalculatorState(valuesAfterEqualsRequestEvaluation(), null);
-            IImmutableList<decimal> valuesAfterEqualsRequestEvaluation()
-                => ListWithSingleValue(CurrentState.ActiveOperation.ResultForOperands(CurrentState.Values));
+                => HasActiveOperation() && IsActiveOperationComplete(); 
+            Validated<decimal> submitEqualsRequestAndGetResult()
+                => validatedEqualsRequestResult()
+                    .Map(saveAndGetResult);
+            decimal saveAndGetResult(decimal result)
+                => LatestValueOfState(CurrentState = stateWithEqualsRequestResult(result));
+            ICalculatorState stateWithEqualsRequestResult(decimal equalsRequestResult)
+                => CalculatorStateFactory.NewCalculatorState(ListWithSingleValue(equalsRequestResult), null);
+            Validated<decimal> validatedEqualsRequestResult()
+                => CurrentState.ActiveOperation.ResultForOperands(CurrentState.Values);
         }
             
         private IImmutableList<decimal> CurrentValuesWithLastReplaced(decimal newValue)
@@ -135,7 +168,7 @@ namespace Calculator.CalculatorEngine.Implementations
         private IImmutableList<decimal> ListWithSingleValue(decimal value)
             => ImmutableList<decimal>.Empty.Add(value);
 
-        private decimal LatestValue()
-            => CurrentState.Values.Last();
+        private decimal LatestValueOfState(ICalculatorState calculatorState)
+            => calculatorState.Values.Last();
     }
 }

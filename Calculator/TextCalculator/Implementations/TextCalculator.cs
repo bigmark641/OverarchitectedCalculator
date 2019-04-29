@@ -1,5 +1,6 @@
 using System;
 using Calculator.CalculatorEngine;
+using Calculator.Utilities;
 
 namespace Calculator.TextCalculator.Implementations
 {
@@ -16,13 +17,18 @@ namespace Calculator.TextCalculator.Implementations
 
         public string SubmitInputAndGetResult(string input)
         {
-            return decimalResult().ToString();
+            return validatedResult()
+                .Match(
+                    ifValue: x => x.ToString(),
+                    ifError: x => "Error: " + x.ToString());
 
             //Local functions 
-            decimal decimalResult() => 
-                IsNumber(input) ? Calculator.SubmitValueInputAndGetResult(numberInput())
-                : input.Equals("=") ? Calculator.SubmitEqualsRequestAndGetResult()
-                    : Calculator.SubmitOperationInputAndGetResult(operationInput());
+            Validated<decimal> validatedResult() => 
+                IsNumber(input) 
+                    ? Calculator.SubmitValueInputAndGetResult(numberInput())
+                : input.Equals("=")
+                    ? Calculator.SubmitEqualsRequestAndGetResult()
+                    : Calculator.SubmitOperationInputAndGetResult(operationInput());            
             decimal numberInput() => AsNumber(input);
             IOperation operationInput() => OperationFactory.GetOperationByOperatorSymbol(input);
         }

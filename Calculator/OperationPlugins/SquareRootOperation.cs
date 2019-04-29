@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Calculator.CalculatorEngine;
+using Calculator.Utilities;
 
 namespace Calculator.OperationPlugins
 {
@@ -11,11 +12,11 @@ namespace Calculator.OperationPlugins
         public override int NumberOfOperands()
             => 1;
 
-        protected override decimal ResultForValidatedOperands(IList<decimal> operands)
+        protected override Validated<decimal> ResultForValidatedOperands(IList<decimal> operands)
         {
-            return isOperandValid() ?
-                (decimal) System.Math.Sqrt(operandAsDouble()) :
-                throw new System.ArgumentOutOfRangeException();
+            return isOperandValid()
+                ? new Validated<decimal>((decimal) System.Math.Sqrt(operandAsDouble()))
+                : new StringError("Only positive numbers can be square rooted.");
 
             //Local functions
             bool isOperandValid()

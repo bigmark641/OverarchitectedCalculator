@@ -1,11 +1,12 @@
 using System;
+using Calculator.Utilities;
 
 namespace Calculator.CalculatorEngine
 {
     public interface ICalculator
     {
-        decimal SubmitValueInputAndGetResult(decimal value);
-        decimal SubmitOperationInputAndGetResult(IOperation operation);
-        decimal SubmitEqualsRequestAndGetResult();
+        Validated<decimal> SubmitValueInputAndGetResult(decimal value);
+        Validated<decimal> SubmitOperationInputAndGetResult(IOperation operation);
+        Validated<decimal> SubmitEqualsRequestAndGetResult();
     }
 }

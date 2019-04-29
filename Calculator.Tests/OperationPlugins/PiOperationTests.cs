@@ -7,6 +7,7 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Calculator.OperationPlugins;
+using Calculator.Utilities;
 
 namespace Calculator.Tests.OperationPlugins
 {
@@ -28,10 +29,10 @@ namespace Calculator.Tests.OperationPlugins
         public void GetResultForOperands_NoOperands_ReturnsPi()
         {
             //Assert
-            resultForOperands().Should().Be(pi());
+            resultForOperands().Should().Be(Validated(pi()));
 
             //Local functions
-            decimal resultForOperands()
+            Validated<decimal> resultForOperands()
                 => new PiOperation().ResultForOperands(new List<decimal>());
             decimal pi()
                 => (decimal)Math.PI;
