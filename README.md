@@ -6,6 +6,7 @@ This was originally started to play around with some functional coding styles, b
 All of the logic of the Calculator Engine, Operation Plugins, and most of the Unit Tests is done in a very functional style:
 * No imperative code
 * No mutable state
+* Used "Validated" functors instead of domain exceptions
 
 The only exceptions to this are:
 * Initializing immutable properties within constructors
